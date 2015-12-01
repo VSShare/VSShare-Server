@@ -50,9 +50,9 @@ namespace Server
             //    clientId: "",
             //    clientSecret: "");
 
-            //app.UseTwitterAuthentication(
-            //   consumerKey: "",
-            //   consumerSecret: "");
+            app.UseTwitterAuthentication(
+               consumerKey: "",
+               consumerSecret: "");
 
             //app.UseFacebookAuthentication(
             //   appId: "",
