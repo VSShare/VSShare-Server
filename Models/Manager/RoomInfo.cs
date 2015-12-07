@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNet.SignalR;
+using ProtocolModels.Broadcaster;
+using ProtocolModels.Notification;
 using ProtocolModels.Notifications;
 using Server.Hubs;
 using System;
@@ -27,8 +29,6 @@ namespace Server.Models.Manager
 
         public Dictionary<string, SessionManager> Sessions { get; } = new Dictionary<string, SessionManager>();
 
-        public SessionManager CurrentSession { get; private set; }
-
         public SessionManager GetSession(string id)
         {
             if (this.Sessions.ContainsKey(id))
@@ -39,56 +39,47 @@ namespace Server.Models.Manager
             return null;
         }
 
-        public async Task NotifyStartBroadcast()
+        public bool IsOwnerSession(string connectionId, string sessionId)
         {
-            var item = new BroadcastEventNotification()
+            if (!this.Sessions.ContainsKey(sessionId))
             {
-                EventType = BroadcastEventType.StartBroadcast
-            };
+                return false;
+            }
 
-            var manager = ListenerManager.GetInstance();
-
-            await Task.Run(() =>
-            {
-                Parallel.ForEach(this.Listeners, c =>
-                {
-                    var listener = manager.GetConnectionInfo(c);
-                    if (listener != null)
-                    {
-                        lock (listener)
-                        {
-                            IHubContext hubContext = GlobalHost.ConnectionManager.GetHubContext<ListenHub>();
-                            hubContext.Clients.Group(this.RoomId).NotifyBroadcastEvent(item);
-                        }
-                    }
-                });
-            });
+            var session = this.Sessions[sessionId];
+            return (session.BroadcasterId == connectionId);
         }
 
-        public async Task NotifyStopBroadcast()
-        {
-            var item = new BroadcastEventNotification()
-            {
-                EventType = BroadcastEventType.StopBroadcast
-            };
-            var manager = ListenerManager.GetInstance();
+        //public async Task NotifyStartBroadcast()
+        //{
+        //    var item = new BroadcastEventNotification()
+        //    {
+        //        EventType = BroadcastEventType.StartBroadcast
+        //    };
 
-            await Task.Run(() =>
-            {
-                Parallel.ForEach(this.Listeners, c =>
-                {
-                    var listener = manager.GetConnectionInfo(c);
-                    if (listener != null)
-                    {
-                        lock (listener)
-                        {
-                            IHubContext hubContext = GlobalHost.ConnectionManager.GetHubContext<ListenHub>();
-                            hubContext.Clients.Group(this.RoomId).NotifyBroadcastEvent(item);
-                        }
-                    }
-                });
-            });
-        }
+        //    var manager = ListenerManager.GetInstance();
+
+        //    await Task.Run(() =>
+        //    {
+        //        IHubContext hubContext = GlobalHost.ConnectionManager.GetHubContext<ListenHub>();
+        //        hubContext.Clients.Group(this.RoomId).NotifyBroadcastEvent(item);
+        //    });
+        //}
+
+        //public async Task NotifyStopBroadcast()
+        //{
+        //    var item = new BroadcastEventNotification()
+        //    {
+        //        EventType = BroadcastEventType.StopBroadcast
+        //    };
+        //    var manager = ListenerManager.GetInstance();
+
+        //    await Task.Run(() =>
+        //    {
+        //        IHubContext hubContext = GlobalHost.ConnectionManager.GetHubContext<ListenHub>();
+        //        hubContext.Clients.Group(this.RoomId).NotifyBroadcastEvent(item);
+        //    });
+        //}
 
         public async Task UpdateBroadcastStatus()
         {
@@ -101,54 +92,43 @@ namespace Server.Models.Manager
 
             await Task.Run(() =>
             {
-                Parallel.ForEach(this.Listeners, c =>
-                {
-                    var listener = manager.GetConnectionInfo(c);
-                    if (listener != null)
-                    {
-                        lock (listener)
-                        {
-                            IHubContext hubContext = GlobalHost.ConnectionManager.GetHubContext<ListenHub>();
-                            hubContext.Clients.Group(this.RoomId).UpdateBroadcastEvent(item);
-                        }
-                    }
-                });
+                IHubContext hubContext = GlobalHost.ConnectionManager.GetHubContext<ListenHub>();
+                hubContext.Clients.Group(this.RoomId).UpdateBroadcastEvent(item);
             });
         }
 
-        public async Task AppendSession(AppendSessionNotification item)
+        public async Task AppendSession(string id, AppendSessionRequest item, string connectionId, string nickName)
         {
-            if (!this.Sessions.ContainsKey(item.SessionId))
+            if (!this.Sessions.ContainsKey(id))
             {
                 var session = new SessionManager()
                 {
-                    Id = item.SessionId,
+                    Id = id,
                     ContentType = item.ContentType,
-                    FileName = item.FileName
+                    FileName = item.FileName,
+                    BroadcasterId = connectionId,
+                    BroadcasterName = nickName
                 };
 
-                this.Sessions.Add(item.SessionId, session);
+                this.Sessions.Add(id, session);
 
                 var manager = ListenerManager.GetInstance();
+                var notification = new AppendSessionNotification()
+                {
+                    Id = id,
+                    ContentType = item.ContentType,
+                    FileName = item.FileName,
+                    BroadcasterName = nickName
+                };
                 await Task.Run(() =>
                 {
-                    Parallel.ForEach(this.Listeners, c =>
-                    {
-                        var listener = manager.GetConnectionInfo(c);
-                        if (listener != null)
-                        {
-                            lock (listener)
-                            {
-                                IHubContext hubContext = GlobalHost.ConnectionManager.GetHubContext<ListenHub>();
-                                hubContext.Clients.Group(this.RoomId).AppendSession(item);
-                            }
-                        }
-                    });
+                    IHubContext hubContext = GlobalHost.ConnectionManager.GetHubContext<ListenHub>();
+                    hubContext.Clients.Group(this.RoomId).AppendSession(notification);
                 });
             }
         }
 
-        public async Task RemoveSession(RemoveSessionNotification item)
+        public async Task RemoveSession(RemoveSessionRequest item)
         {
             if (this.Sessions.ContainsKey(item.SessionId))
             {
@@ -173,32 +153,34 @@ namespace Server.Models.Manager
             }
         }
 
-        public async Task SwitchActiveSession(SwitchActiveSessionNotification item)
-        {
-            if (this.Sessions.ContainsKey(item.SessionId))
-            {
-                this.CurrentSession = this.Sessions[item.SessionId];
+        #region "未定"
+        //public async Task SwitchActiveSession(SwitchActiveSessionNotification item)
+        //{
+        //    if (this.Sessions.ContainsKey(item.SessionId))
+        //    {
+        //        this.CurrentSession = this.Sessions[item.SessionId];
 
-                var manager = ListenerManager.GetInstance();
-                await Task.Run(() =>
-                {
-                    Parallel.ForEach(this.Listeners, c =>
-                    {
-                        var listener = manager.GetConnectionInfo(c);
-                        if (listener != null)
-                        {
-                            lock (listener)
-                            {
-                                IHubContext hubContext = GlobalHost.ConnectionManager.GetHubContext<ListenHub>();
-                                hubContext.Clients.Group(this.RoomId).SwitchActiveSession(item);
-                            }
-                        }
-                    });
-                });
-            }
-        }
+        //        var manager = ListenerManager.GetInstance();
+        //        await Task.Run(() =>
+        //        {
+        //            Parallel.ForEach(this.Listeners, c =>
+        //            {
+        //                var listener = manager.GetConnectionInfo(c);
+        //                if (listener != null)
+        //                {
+        //                    lock (listener)
+        //                    {
+        //                        IHubContext hubContext = GlobalHost.ConnectionManager.GetHubContext<ListenHub>();
+        //                        hubContext.Clients.Group(this.RoomId).SwitchActiveSession(item);
+        //                    }
+        //                }
+        //            });
+        //        });
+        //    }
+        //}
+        #endregion
 
-        public async Task UpdateSession(UpdateSessionNotification item)
+        public async Task UpdateSession(UpdateSessionRequest item)
         {
             if (this.Sessions.ContainsKey(item.SessionId))
             {
@@ -209,47 +191,58 @@ namespace Server.Models.Manager
                 var manager = ListenerManager.GetInstance();
                 await Task.Run(() =>
                 {
-                    Parallel.ForEach(this.Listeners, c =>
-                    {
-                        var listener = manager.GetConnectionInfo(c);
-                        if (listener != null)
-                        {
-                            lock (listener)
-                            {
-                                IHubContext hubContext = GlobalHost.ConnectionManager.GetHubContext<ListenHub>();
-                                hubContext.Clients.Group(this.RoomId).UpdateSession(item);
-                            }
-                        }
-                    });
+                    IHubContext hubContext = GlobalHost.ConnectionManager.GetHubContext<ListenHub>();
+                    hubContext.Clients.Group(this.RoomId).UpdateSession(item);
                 });
             }
         }
 
-        public async Task UpdateSessionContent(UpdateContentNotification item)
+        public async Task UpdateSessionContent(UpdateContentRequest item)
         {
             var session = this.GetSession(item.SessionId);
             if (session != null)
             {
                 session.UpdateContent(item);
-
-                var manager = ListenerManager.GetInstance();
                 await Task.Run(() =>
                 {
-                    Parallel.ForEach(this.Listeners, c =>
-                    {
-                        var listener = manager.GetConnectionInfo(c);
-                        if (listener != null)
-                        {
-                            lock (listener)
-                            {
-                                IHubContext hubContext = GlobalHost.ConnectionManager.GetHubContext<ListenHub>();
-                                hubContext.Clients.Group(this.RoomId).NotifyBroadcastEvent(item);
-                            }
-                        }
-                    });
+                    IHubContext hubContext = GlobalHost.ConnectionManager.GetHubContext<ListenHub>();
+                    hubContext.Clients.Group(this.RoomId).UpdateContent(item);
                 });
             }
         }
+
+        public async Task UpdateSessionCursor(UpdateCursorRequest item)
+        {
+            var session = this.GetSession(item.SessionId);
+            if (session != null)
+            {
+                if (session.UpdateCursor(item))
+                {
+                    var manager = ListenerManager.GetInstance();
+                    await Task.Run(() =>
+                    {
+                        IHubContext hubContext = GlobalHost.ConnectionManager.GetHubContext<ListenHub>();
+                        hubContext.Clients.Group(this.RoomId).UpdateCursor(item);
+                    });
+                }
+            }
+        }
+
+        #region "Listener Request"
+
+        public List<AppendSessionNotification> GetSessionList()
+        {
+            return (from item in this.Sessions.Values
+                    select new AppendSessionNotification()
+                    {
+                        BroadcasterName = item.BroadcasterName,
+                        ContentType = item.ContentType,
+                        FileName = item.FileName,
+                        Id = item.Id
+                    }).ToList();
+        }
+
+        #endregion
 
 
     }

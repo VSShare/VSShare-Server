@@ -33,12 +33,6 @@ namespace Server.Models.Manager
             return null;
         }
 
-
-        public bool IsOpened(string connectionId)
-        {
-            return _rooms.ContainsKey(connectionId);
-        }
-
         public void RegisterBroadcaster(string connectionId, string roomId)
         {
             if (this._rooms.ContainsKey(roomId))
@@ -62,7 +56,7 @@ namespace Server.Models.Manager
             }
         }
 
-        public async Task RemoveBroadcaster(string connectionId, string roomId)
+        public void RemoveBroadcaster(string connectionId, string roomId)
         {
             if (this._rooms.ContainsKey(roomId))
             {
@@ -73,7 +67,7 @@ namespace Server.Models.Manager
                     // TODO: DBへの反映(IsOpenedをFalseに)
 
                     // 放送の終了
-                    await room.NotifyStopBroadcast();
+                    //await room.NotifyStopBroadcast();
                 }
                 this._rooms.Remove(roomId);
             }

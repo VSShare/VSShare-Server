@@ -12,5 +12,8 @@ namespace Server.Models.Manager
 
         public string RoomId { get; set; }
 
+        public string Nickname { get; set; }
+
     }
+
 }

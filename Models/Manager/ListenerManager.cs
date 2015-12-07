@@ -71,5 +71,6 @@ namespace Server.Models.Manager
                 this._connections.Remove(connectionId);
             }
         }
+
     }
 }

@@ -7,6 +7,9 @@ using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Hubs;
 using Server.Models.Manager;
 using ProtocolModels.Auth;
+using ProtocolModels.Broadcaster;
+using ProtocolModels.Listener;
+using ProtocolModels.Notification;
 
 namespace Server.Hubs
 {
@@ -33,14 +36,14 @@ namespace Server.Hubs
         public async Task<AuthorizeListenerResponse> Authorize(AuthorizeListenerRequest request)
         {
             var connectionId = Context.ConnectionId;
-            var instance = BroadcasterManager.GetInstance();
+            var instance = ListenerManager.GetInstance();
 
             // TODO: 認証処理 from DB
             var roomId = "";
 
             // OKならDBに登録(IsOpening=True)
 
-            await instance.RegisterBroadcaster(connectionId, roomId);
+            await instance.RegisterListener(connectionId, roomId);
             var response = new AuthorizeListenerResponse()
             {
                 IsSuccess = true
@@ -49,5 +52,65 @@ namespace Server.Hubs
             return response;
         }
 
+        #region "Session Request系"
+
+        public List<AppendSessionNotification> RequestSessionList()
+        {
+            var connectionId = Context.ConnectionId;
+            var instance = ListenerManager.GetInstance();
+            if (instance.IsListener(connectionId))
+            {
+                var info = instance.GetConnectionInfo(connectionId);
+                var roomInstance = RoomManager.GetInstance();
+                var room = roomInstance.GetRoomInfo(info.RoomId);
+                return room.GetSessionList();
+            }
+            return null;
+        }
+
+        #endregion
+
+        #region "Content Request系"
+
+        public UpdateContentRequest RequestSessionContent(GetContentRequest request)
+        {
+            var connectionId = Context.ConnectionId;
+            var instance = ListenerManager.GetInstance();
+            if (instance.IsListener(connectionId))
+            {
+                var info = instance.GetConnectionInfo(connectionId);
+                var roomInstance = RoomManager.GetInstance();
+                var room = roomInstance.GetRoomInfo(info.RoomId);
+                var session = room.GetSession(request.Id);
+                if (session != null)
+                {
+                    return session.GetContent();
+                }
+            }
+            return null;
+        }
+
+        #endregion
+
+        #region "Cursor Request系"
+
+        public UpdateCursorRequest RequestSessionCursor(GetCursorRequest request)
+        {
+            var connectionId = Context.ConnectionId;
+            var instance = ListenerManager.GetInstance();
+            if (instance.IsListener(connectionId))
+            {
+                var info = instance.GetConnectionInfo(connectionId);
+                var roomInstance = RoomManager.GetInstance();
+                var room = roomInstance.GetRoomInfo(info.RoomId);
+                var session = room.GetSession(request.Id);
+                if (session != null)
+                {
+                    return session.GetCursor();
+                }
+            }
+            return null;
+        }
+        #endregion
     }
 }
