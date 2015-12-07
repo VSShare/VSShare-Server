@@ -132,7 +132,7 @@ namespace Server.Hubs
         //}
 
 
-        public async Task UpdateSession(UpdateSessionRequest item)
+        public async Task UpdateSessionInfo(UpdateSessionInfoRequest item)
         {
             var connectionId = Context.ConnectionId;
             var instance = BroadcasterManager.GetInstance();
@@ -145,14 +145,14 @@ namespace Server.Hubs
             if (!room.IsOwnerSession(item.SessionId, connectionId))
                 return;
 
-            await room.UpdateSession(item);
+            await room.UpdateSessionInfo(item);
         }
 
         #endregion
 
         #region "Content系"
 
-        public async Task UpdateContent(UpdateContentRequest item)
+        public async Task UpdateSessionContent(UpdateContentRequest item)
         {
             var connectionId = Context.ConnectionId;
             var instance = BroadcasterManager.GetInstance();
@@ -172,7 +172,7 @@ namespace Server.Hubs
 
         #region "Cursor系"
 
-        public async Task UpdateCursor(UpdateCursorRequest item)
+        public async Task UpdateSessionCursor(UpdateCursorRequest item)
         {
             var connectionId = Context.ConnectionId;
             var instance = BroadcasterManager.GetInstance();

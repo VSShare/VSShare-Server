@@ -54,7 +54,7 @@ namespace Server.Hubs
 
         #region "Session Request系"
 
-        public List<AppendSessionNotification> RequestSessionList()
+        public List<AppendSessionNotification> GetSessionList()
         {
             var connectionId = Context.ConnectionId;
             var instance = ListenerManager.GetInstance();
@@ -68,11 +68,30 @@ namespace Server.Hubs
             return null;
         }
 
+        public AppendSessionNotification GetSessionInfo(GetSessionRequest request)
+        {
+            var connectionId = Context.ConnectionId;
+            var instance = ListenerManager.GetInstance();
+            if (instance.IsListener(connectionId))
+            {
+                var info = instance.GetConnectionInfo(connectionId);
+                var roomInstance = RoomManager.GetInstance();
+                var room = roomInstance.GetRoomInfo(info.RoomId);
+                var session = room.GetSession(request.Id);
+                if (session != null)
+                {
+                    return session.GetSessionInfo();
+                }
+            }
+            return null;
+        }
+
+
         #endregion
 
         #region "Content Request系"
 
-        public UpdateContentRequest RequestSessionContent(GetContentRequest request)
+        public UpdateContentRequest GetSessionContent(GetContentRequest request)
         {
             var connectionId = Context.ConnectionId;
             var instance = ListenerManager.GetInstance();
@@ -94,7 +113,7 @@ namespace Server.Hubs
 
         #region "Cursor Request系"
 
-        public UpdateCursorRequest RequestSessionCursor(GetCursorRequest request)
+        public UpdateCursorRequest GetSessionCursor(GetCursorRequest request)
         {
             var connectionId = Context.ConnectionId;
             var instance = ListenerManager.GetInstance();

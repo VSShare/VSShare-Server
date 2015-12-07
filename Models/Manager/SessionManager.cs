@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Server.Extensions;
 using ProtocolModels.Broadcaster;
+using ProtocolModels.Notification;
 
 namespace Server.Models.Manager
 {
@@ -121,6 +122,18 @@ namespace Server.Models.Manager
         }
 
         #region "Listener Request"
+
+        public AppendSessionNotification GetSessionInfo()
+        {
+            return new AppendSessionNotification()
+            {
+                Id = this.Id,
+                ContentType = this.ContentType,
+                FileName = this.FileName,
+                BroadcasterName = this.BroadcasterName
+            };
+        }
+
         public UpdateCursorRequest GetCursor()
         {
             return new UpdateCursorRequest()
@@ -131,6 +144,7 @@ namespace Server.Models.Manager
                 Type = this.CursorType
             };
         }
+
 
         public UpdateContentRequest GetContent()
         {

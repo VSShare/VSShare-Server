@@ -79,7 +79,7 @@ namespace Server.Models.Manager
             {
                 this._rooms[roomId].Listeners.Add(connectionId);
 
-                await this._rooms[roomId].UpdateBroadcastStatus();
+                await this._rooms[roomId].UpdateRoomStatus();
             }
             // 含まれていない場合は何もしない（配信開始してない）
         }
@@ -90,7 +90,7 @@ namespace Server.Models.Manager
             {
                 this._rooms[roomId].Listeners.Remove(connectionId);
 
-                await this._rooms[roomId].UpdateBroadcastStatus();
+                await this._rooms[roomId].UpdateRoomStatus();
             }
         }
     }

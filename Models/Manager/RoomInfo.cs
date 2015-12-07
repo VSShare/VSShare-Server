@@ -81,7 +81,7 @@ namespace Server.Models.Manager
         //    });
         //}
 
-        public async Task UpdateBroadcastStatus()
+        public async Task UpdateRoomStatus()
         {
             var item = new UpdateBroadcastStatusNotification()
             {
@@ -93,7 +93,7 @@ namespace Server.Models.Manager
             await Task.Run(() =>
             {
                 IHubContext hubContext = GlobalHost.ConnectionManager.GetHubContext<ListenHub>();
-                hubContext.Clients.Group(this.RoomId).UpdateBroadcastEvent(item);
+                hubContext.Clients.Group(this.RoomId).UpdateRoomStatus(item);
             });
         }
 
@@ -180,7 +180,7 @@ namespace Server.Models.Manager
         //}
         #endregion
 
-        public async Task UpdateSession(UpdateSessionRequest item)
+        public async Task UpdateSessionInfo(UpdateSessionInfoRequest item)
         {
             if (this.Sessions.ContainsKey(item.SessionId))
             {
@@ -188,11 +188,19 @@ namespace Server.Models.Manager
                 session.ContentType = item.ContentType;
                 session.FileName = item.FileName;
 
+                var notification = new AppendSessionNotification()
+                {
+                    Id = item.SessionId,
+                    ContentType = item.ContentType,
+                    FileName = item.FileName,
+                    BroadcasterName = session.BroadcasterName
+                };
+
                 var manager = ListenerManager.GetInstance();
                 await Task.Run(() =>
                 {
                     IHubContext hubContext = GlobalHost.ConnectionManager.GetHubContext<ListenHub>();
-                    hubContext.Clients.Group(this.RoomId).UpdateSession(item);
+                    hubContext.Clients.Group(this.RoomId).UpdateSessionInfo(notification);
                 });
             }
         }
@@ -206,7 +214,7 @@ namespace Server.Models.Manager
                 await Task.Run(() =>
                 {
                     IHubContext hubContext = GlobalHost.ConnectionManager.GetHubContext<ListenHub>();
-                    hubContext.Clients.Group(this.RoomId).UpdateContent(item);
+                    hubContext.Clients.Group(this.RoomId).UpdateSessionContent(item);
                 });
             }
         }
@@ -222,7 +230,7 @@ namespace Server.Models.Manager
                     await Task.Run(() =>
                     {
                         IHubContext hubContext = GlobalHost.ConnectionManager.GetHubContext<ListenHub>();
-                        hubContext.Clients.Group(this.RoomId).UpdateCursor(item);
+                        hubContext.Clients.Group(this.RoomId).UpdateSessionCursor(item);
                     });
                 }
             }
