@@ -29,9 +29,9 @@
             @Html.DisplayFor(modelItem => item.IsLive)
         </td>
         <td>
-            @Html.ActionLink("Edit", "Settings", new { id=item.Name }) |
-            @Html.ActionLink("Details", "Details", new { id=item.Name }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.Name })
+            @Html.ActionLink("Edit", "Settings", new { name=item.Name }) |
+            @Html.ActionLink("Details", "Details", new { name=item.Name }) |
+            @Html.ActionLink("Delete", "Delete", new { name=item.Name })
         </td>
     </tr>
 }

@@ -1,11 +1,15 @@
 ﻿using System;
+using System.Configuration;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin;
+using Microsoft.Owin.Security;
 using Microsoft.Owin.Security.Cookies;
 using Microsoft.Owin.Security.Google;
+using Microsoft.Owin.Security.Twitter;
 using Owin;
 using Server.Models;
+using System.Security.Claims;
 
 namespace Server
 {
@@ -50,9 +54,34 @@ namespace Server
             //    clientId: "",
             //    clientSecret: "");
 
+
             app.UseTwitterAuthentication(
-               consumerKey: "",
-               consumerSecret: "");
+                new TwitterAuthenticationOptions()
+                {
+                    ConsumerKey = ConfigurationManager.AppSettings["TwitterConsumerKey"],
+                    ConsumerSecret = ConfigurationManager.AppSettings["TwitterConsumerSecret"],
+                    Provider = new TwitterAuthenticationProvider
+                    {
+#pragma warning disable CS1998 // 非同期メソッドは、'await' 演算子がないため、同期的に実行されます
+                        OnAuthenticated = async context =>
+                        {
+                            context.Identity.AddClaim(new Claim("urn:tokens:twitter:accesstoken", context.AccessToken));
+                            context.Identity.AddClaim(new Claim("urn:tokens:twitter:accesstokensecret",
+                                context.AccessTokenSecret));
+                        }
+#pragma warning restore CS1998 // 非同期メソッドは、'await' 演算子がないため、同期的に実行されます
+                    },
+                    BackchannelCertificateValidator = new CertificateSubjectKeyIdentifierValidator(new[]
+                    {
+                        "A5EF0B11CEC04103A34A659048B21CE0572D7D47",
+                        "0D445C165344C1827E1D20AB25F40163D8BE79A5",
+                        "7FD365A7C2DDECBBF03009F34339FA02AF333133",
+                        "39A55D933676616E73A761DFA16A7E59CDE66FAD",
+                        "4eb6d578499b1ccf5f581ead56be3d9b6744a5e5",
+                        "5168FF90AF0207753CCCD9656462A212B859723B",
+                        "B13EC36903F8BF4701D498261A0802EF63642BC3"
+                    })
+                });
 
             //app.UseFacebookAuthentication(
             //   appId: "",

@@ -41,9 +41,9 @@ namespace Server.Models
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<Room>().HasKey(c => c.Id);
             modelBuilder.Entity<Room>().HasRequired(c => c.Owner).WithMany(n => n.OwnerRooms);
             modelBuilder.Entity<UserAccessToken>().HasRequired(c => c.User).WithMany(n => n.AccessTokens);
-
         }
 
         public IDbSet<Room> Rooms { get; set; }

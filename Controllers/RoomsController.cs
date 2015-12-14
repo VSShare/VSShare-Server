@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
+using System.Data.Entity.Migrations;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -56,7 +57,11 @@ namespace Server.Controllers
             }
 
             // ユーザーを取得できれば取得
-            var viewModel = new StatusMessageViewModel<Room>();
+            var viewModel = new StatusMessageViewModel<Room>()
+            {
+                Item = room
+            };
+
             var appUser = await GetApplicationUser();
             if (!room.IsLive)
             {
@@ -102,7 +107,10 @@ namespace Server.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
 
             // ユーザーを取得できれば取得
-            var viewModel = new StatusMessageViewModel<Room>();
+            var viewModel = new StatusMessageViewModel<Room>()
+            {
+                Item = room
+            };
 
             var userId = User.Identity.GetUserId();
             var appUser = await db.Users.Where(user => user.Id == userId).SingleOrDefaultAsync();
@@ -223,12 +231,12 @@ namespace Server.Controllers
                 IsHidden = viewModel.IsHidden,
                 IsPrivate = viewModel.IsPrivate,
                 Name = viewModel.Name,
+                Id = Guid.NewGuid().ToString(),
                 Owner = user,
                 BroadcastToken = "Broadcast Token"
             };
+            db.Rooms.AddOrUpdate(room);
 
-            room.Owner = user;
-            db.Rooms.Add(room);
             await db.SaveChangesAsync();
             return RedirectToAction("Details", new { name = room.Name });
         }
@@ -331,7 +339,7 @@ namespace Server.Controllers
         [HttpPost]
         [Authorize()]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Settings([Bind(Include = "DisplayName")] Room room)
+        public async Task<ActionResult> Settings(Room room)
         {
             var user = await GetApplicationUser();
             if (user == null)

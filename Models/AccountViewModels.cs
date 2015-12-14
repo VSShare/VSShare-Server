@@ -1,13 +1,17 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Web.Mvc;
 
 namespace Server.Models
 {
     public class ExternalLoginConfirmationViewModel
     {
         [Required]
-        [Display(Name = "電子メール")]
-        public string Email { get; set; }
+        [StringLength(20, MinimumLength = 3)]
+        [RegularExpression("^[A-Za-z0-9_]+$", ErrorMessage = "英数字のみ使えます。")]
+        [Remote("IsUserNameAvailable", "Account", ErrorMessage = "既に使われています。")]
+        [Display(Name = "ユーザー名")]
+        public string UserName { get; set; }
     }
 
     public class ExternalLoginListViewModel
@@ -49,9 +53,9 @@ namespace Server.Models
     public class LoginViewModel
     {
         [Required]
-        [Display(Name = "電子メール")]
+        [Display(Name = "ユーザー名もしくは電子メール")]
         [EmailAddress]
-        public string Email { get; set; }
+        public string EmailOrUserName { get; set; }
 
         [Required]
         [DataType(DataType.Password)]
@@ -65,6 +69,13 @@ namespace Server.Models
     public class RegisterViewModel
     {
         [Required]
+        [StringLength(20, MinimumLength = 3)]
+        [RegularExpression("^[A-Za-z0-9_]+$", ErrorMessage = "英数字のみ使えます。")]
+        [Remote("IsUserNameAvailable", "Account", ErrorMessage = "既に使われています。")]
+        [Display(Name = "ユーザー名")]
+        public string UserName { get; set; }
+
+        [Required]
         [EmailAddress]
         [Display(Name = "電子メール")]
         public string Email { get; set; }
@@ -77,7 +88,7 @@ namespace Server.Models
 
         [DataType(DataType.Password)]
         [Display(Name = "パスワードの確認入力")]
-        [Compare("Password", ErrorMessage = "パスワードと確認のパスワードが一致しません。")]
+        [System.ComponentModel.DataAnnotations.Compare("Password", ErrorMessage = "パスワードと確認のパスワードが一致しません。")]
         public string ConfirmPassword { get; set; }
     }
 
@@ -96,7 +107,7 @@ namespace Server.Models
 
         [DataType(DataType.Password)]
         [Display(Name = "パスワードの確認入力")]
-        [Compare("Password", ErrorMessage = "パスワードと確認のパスワードが一致しません。")]
+        [System.ComponentModel.DataAnnotations.Compare("Password", ErrorMessage = "パスワードと確認のパスワードが一致しません。")]
         public string ConfirmPassword { get; set; }
 
         public string Code { get; set; }

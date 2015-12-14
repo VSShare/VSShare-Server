@@ -16,9 +16,9 @@ namespace Server.Models
         public string Id { get; set; }
 
         [Required]
-        [Index(IsUnique = true)]
         [MaxLength(30)]
-        [StringLength(30)]
+        [StringLength(30, MinimumLength = 3)]
+        [Index(IsUnique = true)]
         [Display(Name = "名前")]
         [RegularExpression("^[A-Za-z0-9_]+$", ErrorMessage = "英数字のみ使えます。")]
         public string Name { get; set; }
@@ -58,10 +58,6 @@ namespace Server.Models
 
         public Room()
         {
-            this.Description = "";
-            this.IsLive = false;
-            this.TotalVisitor = 0;
-            this.CreatedAt = DateTime.Now;
         }
     }
 
@@ -76,7 +72,7 @@ namespace Server.Models
         [Required]
         [Index(IsUnique = true)]
         [MaxLength(30)]
-        [StringLength(30)]
+        [StringLength(30, MinimumLength = 3)]
         [Display(Name = "名前")]
         [Remote("IsRoomNameAvailable", "Rooms", ErrorMessage = "既に使われています。")]
         [RegularExpression("^[A-Za-z0-9_]+$", ErrorMessage = "英数字のみ使えます。")]

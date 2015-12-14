@@ -8,6 +8,7 @@ using System.Web.Mvc;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
+using Server.Extensions;
 using Server.Models;
 
 namespace Server.Controllers
@@ -75,20 +76,44 @@ namespace Server.Controllers
 
             // これは、アカウント ロックアウトの基準となるログイン失敗回数を数えません。
             // パスワード入力失敗回数に基づいてアカウントがロックアウトされるように設定するには、shouldLockout: true に変更してください。
-            var result = await SignInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, shouldLockout: false);
-            switch (result)
+            var user = await UserManager.FindByUserNameOrEmailAsync(model.EmailOrUserName, model.Password);
+            if (user != null)
             {
-                case SignInStatus.Success:
-                    return RedirectToLocal(returnUrl);
-                case SignInStatus.LockedOut:
-                    return View("Lockout");
-                case SignInStatus.RequiresVerification:
-                    return RedirectToAction("SendCode", new { ReturnUrl = returnUrl, RememberMe = model.RememberMe });
-                case SignInStatus.Failure:
-                default:
-                    ModelState.AddModelError("", "無効なログイン試行です。");
+                if (await UserManager.IsLockedOutAsync(user.Id))
+                {
+                    ModelState.AddModelError("", "アカウントはロックされています。しばらくしてからアクセスしてください。");
                     return View(model);
+                }
+
+                // パスワードが正しい場合はリトライをクリア
+                await UserManager.ResetAccessFailedCountAsync(user.Id);
+
+                AuthenticationManager.SignOut(Microsoft.AspNet.Identity.DefaultAuthenticationTypes.ExternalCookie);
+                AuthenticationManager.SignIn(new AuthenticationProperties() { IsPersistent = model.RememberMe }, 
+                    await user.GenerateUserIdentityAsync(UserManager));
+                return RedirectToLocal(returnUrl);
             }
+            else
+            {
+                // パスワード抜きで取得しなおす
+                user = await UserManager.FindByUserNameOrEmailAsync(model.EmailOrUserName);
+                if (user != null)
+                {
+                    await UserManager.SetLockoutEnabledAsync(user.Id, true);
+                    await UserManager.AccessFailedAsync(user.Id);
+
+                    // アカウントをロック
+                    if (await UserManager.IsLockedOutAsync(user.Id))
+                    {
+                        ModelState.AddModelError("", "ログインの失敗の上限回数を超過したため、アカウントをロックしました。しばらくしてからアクセスしてください。");
+                        return View(model);
+                    }
+                }
+
+                ModelState.AddModelError("", "ユーザー名またはパスワードが無効です。");
+            }
+
+            return View(model);
         }
 
         //
@@ -151,7 +176,7 @@ namespace Server.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
+                var user = new ApplicationUser { UserName = model.UserName, Email = model.Email };
                 var result = await UserManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
@@ -343,7 +368,7 @@ namespace Server.Controllers
                     // ユーザーがアカウントを持っていない場合、ユーザーにアカウントを作成するよう求めます
                     ViewBag.ReturnUrl = returnUrl;
                     ViewBag.LoginProvider = loginInfo.Login.LoginProvider;
-                    return View("ExternalLoginConfirmation", new ExternalLoginConfirmationViewModel { Email = loginInfo.Email });
+                    return View("ExternalLoginConfirmation", new ExternalLoginConfirmationViewModel { UserName = loginInfo.DefaultUserName });
             }
         }
 
@@ -367,7 +392,7 @@ namespace Server.Controllers
                 {
                     return View("ExternalLoginFailure");
                 }
-                var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
+                var user = new ApplicationUser { UserName = model.UserName };
                 var result = await UserManager.CreateAsync(user);
                 if (result.Succeeded)
                 {
@@ -401,6 +426,13 @@ namespace Server.Controllers
         public ActionResult ExternalLoginFailure()
         {
             return View();
+        }
+
+        [AllowAnonymous()]
+        public async Task<ActionResult> IsUserNameAvailable(string userName)
+        {
+            var user = await UserManager.FindByNameAsync(userName);
+            return Json(user == null, JsonRequestBehavior.AllowGet);
         }
 
         protected override void Dispose(bool disposing)
