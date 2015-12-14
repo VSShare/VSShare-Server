@@ -66,20 +66,20 @@ namespace Server.Models.Manager
         //    });
         //}
 
-        //public async Task NotifyStopBroadcast()
-        //{
-        //    var item = new BroadcastEventNotification()
-        //    {
-        //        EventType = BroadcastEventType.StopBroadcast
-        //    };
-        //    var manager = ListenerManager.GetInstance();
+        public async Task NotifyStopBroadcast()
+        {
+            var item = new BroadcastEventNotification()
+            {
+                EventType = BroadcastEventType.StopBroadcast
+            };
+            var manager = ListenerManager.GetInstance();
 
-        //    await Task.Run(() =>
-        //    {
-        //        IHubContext hubContext = GlobalHost.ConnectionManager.GetHubContext<ListenHub>();
-        //        hubContext.Clients.Group(this.RoomId).NotifyBroadcastEvent(item);
-        //    });
-        //}
+            await Task.Run(() =>
+            {
+                IHubContext hubContext = GlobalHost.ConnectionManager.GetHubContext<ListenHub>();
+                hubContext.Clients.Group(this.RoomId).NotifyBroadcastEvent(item);
+            });
+        }
 
         public async Task UpdateRoomStatus()
         {

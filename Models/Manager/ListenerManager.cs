@@ -38,7 +38,7 @@ namespace Server.Models.Manager
             return _connections.ContainsKey(connectionId);
         }
 
-        public async Task RegisterListener(string connectionId, string roomId)
+        public async Task<bool> RegisterListener(string connectionId, string roomId)
         {
             var roomManager = RoomManager.GetInstance();
 
@@ -50,15 +50,20 @@ namespace Server.Models.Manager
                 this._connections.Remove(connectionId);
             }
 
-            await roomManager.RegisterListener(connectionId, roomId);
+            var result = await roomManager.RegisterListener(connectionId, roomId);
 
-            var info = new ConnectionInfo()
+            if (result)
             {
-                ConnectionId = connectionId,
-                RoomId = roomId
-            };
+                var info = new ConnectionInfo()
+                {
+                    ConnectionId = connectionId,
+                    RoomId = roomId
+                };
 
-            this._connections.Add(connectionId, info);
+                this._connections.Add(connectionId, info);
+            }
+
+            return result;
         }
 
         public async Task RemoveListener(string connectionId)
@@ -70,6 +75,11 @@ namespace Server.Models.Manager
 
                 this._connections.Remove(connectionId);
             }
+        }
+
+        public void RemoveListenerWithoutRoomOperation(string connectionId)
+        {
+            this._connections.Remove(connectionId);
         }
 
     }

@@ -41,36 +41,36 @@ namespace Server.Models.Manager
             return _connections.ContainsKey(connectionId);
         }
 
-        public void RegisterBroadcaster(string connectionId, string roomId, string nickname)
+        public async Task RegisterBroadcaster(string connectionId, Room room, ApplicationUser user)
         {
             var roomManager = RoomManager.GetInstance();
 
             if (this._connections.ContainsKey(connectionId))
             {
-                roomManager.RemoveBroadcaster(connectionId, this._connections[connectionId].RoomId);
+                await roomManager.RemoveBroadcaster(connectionId, this._connections[connectionId].RoomId);
 
                 this._connections.Remove(connectionId);
             }
 
-            roomManager.RegisterBroadcaster(connectionId, roomId);
+            roomManager.RegisterBroadcaster(connectionId, room);
 
             var info = new ConnectionInfo()
             {
                 ConnectionId = connectionId,
-                RoomId = roomId,
-                Nickname = nickname
+                RoomId = room.Id,
+                Nickname = user.UserName
             };
 
             this._connections.Add(connectionId, info);
         }
 
-        public void RemoveBroadcaster(string connectionId)
+        public async Task RemoveBroadcaster(string connectionId)
         {
             
             if (this._connections.ContainsKey(connectionId))
             {
                 var instance = RoomManager.GetInstance();
-                instance.RemoveBroadcaster(connectionId, this._connections[connectionId].RoomId);
+                await instance.RemoveBroadcaster(connectionId, this._connections[connectionId].RoomId);
 
                 this._connections.Remove(connectionId);
             }

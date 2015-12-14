@@ -1,0 +1,42 @@
+﻿@model Tuple<string, Server.Models.Room>
+
+@{
+    ViewBag.Title = "Live";
+}
+
+<h2>Live</h2>
+
+<div>
+    <h4>Room</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Item2.DisplayName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Item2.DisplayName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Item2.IsLive)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Item2.IsLive)
+        </dd>
+
+        <dt>
+            AuthCode
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Item1)    
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Settings", new { name = Model.Item2.Name }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

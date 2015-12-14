@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
@@ -10,6 +11,7 @@ using ProtocolModels.Auth;
 using ProtocolModels.Broadcaster;
 using ProtocolModels.Listener;
 using ProtocolModels.Notification;
+using Server.Models;
 
 namespace Server.Hubs
 {
@@ -38,18 +40,35 @@ namespace Server.Hubs
             var connectionId = Context.ConnectionId;
             var instance = ListenerManager.GetInstance();
 
-            // TODO: 認証処理 from DB
-            var roomId = "";
+            var tokenManager = TokenManager.GetInstance();
+            var roomId = tokenManager.GetTokenInfo(request.Token);
+
+            if (roomId == null)
+                return new AuthorizeListenerResponse()
+                {
+                    IsSuccess = false
+                };
+
+            tokenManager.RemoveToken(request.Token);
+
+            //// Broadcasterも立ち入り禁止になる...
+            //using (var db = new ApplicationDbContext())
+            //{
+            //    var room = await db.Rooms.Where(c => c.Name == roomId).SingleOrDefaultAsync();
+            //    if (room == null || !room.IsLive)
+            //        return new AuthorizeListenerResponse()
+            //        {
+            //            IsSuccess = false
+            //        };
+            //}
 
             // OKならDBに登録(IsOpening=True)
 
             await instance.RegisterListener(connectionId, roomId);
-            var response = new AuthorizeListenerResponse()
+            return new AuthorizeListenerResponse()
             {
                 IsSuccess = true
             };
-
-            return response;
         }
 
         #region "Session Request系"

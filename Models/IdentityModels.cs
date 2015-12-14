@@ -1,4 +1,5 @@
-﻿using System.Data.Entity;
+﻿using System.Collections.Generic;
+using System.Data.Entity;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
@@ -16,6 +17,12 @@ namespace Server.Models
             // ここにカスタム ユーザー クレームを追加します
             return userIdentity;
         }
+
+        public virtual ICollection<Room> OwnerRooms { get; set; }
+
+        public virtual ICollection<UserAccessToken> AccessTokens { get; set; }
+
+
     }
 
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
@@ -29,5 +36,19 @@ namespace Server.Models
         {
             return new ApplicationDbContext();
         }
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Room>().HasRequired(c => c.Owner).WithMany(n => n.OwnerRooms);
+            modelBuilder.Entity<UserAccessToken>().HasRequired(c => c.User).WithMany(n => n.AccessTokens);
+
+        }
+
+        public IDbSet<Room> Rooms { get; set; }
+
+        public IDbSet<UserAccessToken> AccessTokens { get; set; } 
+
     }
 }

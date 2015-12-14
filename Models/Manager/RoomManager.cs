@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ProtocolModels.Auth;
 
 namespace Server.Models.Manager
 {
@@ -33,62 +35,89 @@ namespace Server.Models.Manager
             return null;
         }
 
-        public void RegisterBroadcaster(string connectionId, string roomId)
+        public void RegisterBroadcaster(string connectionId, Room room)
         {
-            if (this._rooms.ContainsKey(roomId))
+            if (this._rooms.ContainsKey(room.Id))
             {
-                var room = this._rooms[roomId];
-                room.Broadcasters.Add(connectionId);
+                var temp = this._rooms[room.Id];
+                temp.Broadcasters.Add(connectionId);
             }
             else
             {
-                long visitorCount = 0;
-                // TODO: DBから取得
+                long visitorCount = room.TotalVisitor;
 
-                var room = new RoomInfo()
+                var temp = new RoomInfo()
                 {
-                    RoomId = roomId,
+                    RoomId = room.Id,
                     VisitorCount = visitorCount
                 };
-                room.Broadcasters.Add(connectionId);
+                temp.Broadcasters.Add(connectionId);
 
-                this._rooms.Add(roomId, room);
+                this._rooms.Add(room.Id, temp);
             }
         }
 
-        public void RemoveBroadcaster(string connectionId, string roomId)
+        public async Task RemoveBroadcaster(string connectionId, string roomId)
         {
             if (this._rooms.ContainsKey(roomId))
             {
-                var room = this._rooms[roomId];
-                room.Broadcasters.Remove(connectionId);
-                if (room.Broadcasters.Count == 0)
+                var roomInfo = this._rooms[roomId];
+                roomInfo.Broadcasters.Remove(connectionId);
+                if (roomInfo.Broadcasters.Count == 0)
                 {
-                    // TODO: DBへの反映(IsOpenedをFalseに)
+                    using (var db = new ApplicationDbContext())
+                    {
+                        var room = await db.Rooms
+                            .FirstOrDefaultAsync(c => c.Id == roomId);
+                        if (room != null && room.IsLive)
+                        {
+                            // 自動的にDisconnectする
+                            room.TotalVisitor = roomInfo.VisitorCount;
+                            room.IsLive = false;
+                            await db.SaveChangesAsync();
+                        }
+                    }
+
+
+                    // Listenerへ通知
+                    await roomInfo.NotifyStopBroadcast();
+
+                    // Listenerの削除
+                    var listenerManager = ListenerManager.GetInstance();
+                    lock (roomInfo.Listeners)
+                    {
+                        foreach (var listener in roomInfo.Listeners)
+                            listenerManager.RemoveListenerWithoutRoomOperation(listener);
+                    }
 
                     // 放送の終了
                     //await room.NotifyStopBroadcast();
+                    this._rooms.Remove(roomId);
                 }
-                this._rooms.Remove(roomId);
             }
         }
 
-        public async Task RegisterListener(string connectionId, string roomId)
+        public async Task<bool> RegisterListener(string connectionId, string roomId)
         {
             if (this._rooms.ContainsKey(roomId))
             {
                 this._rooms[roomId].Listeners.Add(connectionId);
 
                 await this._rooms[roomId].UpdateRoomStatus();
+                return true;
             }
             // 含まれていない場合は何もしない（配信開始してない）
+            return false;
         }
 
         public async Task RemoveListener(string connectionId, string roomId)
         {
             if (this._rooms.ContainsKey(roomId))
             {
-                this._rooms[roomId].Listeners.Remove(connectionId);
+                lock (this._rooms[roomId].Listeners)
+                {
+                    this._rooms[roomId].Listeners.Remove(connectionId);
+                }
 
                 await this._rooms[roomId].UpdateRoomStatus();
             }

@@ -206,6 +206,7 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
+    <Compile Include="Controllers\RoomsController.cs" />
     <Compile Include="Extensions\ListExtensions.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -213,6 +214,9 @@
     <Compile Include="Hubs\BroadcastHub.cs" />
     <Compile Include="Hubs\ListenHub.cs" />
     <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="Models\StatusMessageViewModel.cs" />
+    <Compile Include="Models\TokenManager.cs" />
+    <Compile Include="Models\UserAccessTokenModel.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\Manager\BroadcasterManager.cs" />
@@ -254,7 +258,9 @@
     <Content Include="Scripts\respond.js" />
     <Content Include="Scripts\respond.min.js" />
     <Content Include="Scripts\_references.js" />
-    <Content Include="Web.config" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </Content>
@@ -288,6 +294,16 @@
     <Content Include="Views\Manage\VerifyPhoneNumber.cshtml" />
     <Content Include="Views\Shared\Lockout.cshtml" />
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
+    <Content Include="Views\Rooms\Create.cshtml" />
+    <Content Include="Views\Rooms\Delete.cshtml" />
+    <Content Include="Views\Rooms\Details.cshtml" />
+    <Content Include="Views\Rooms\Settings.cshtml" />
+    <Content Include="Views\Rooms\Index.cshtml" />
+    <Content Include="Views\Rooms\Join.cshtml" />
+    <Content Include="Views\Rooms\Live.cshtml" />
+    <Content Include="Views\Rooms\Manage.cshtml" />
+    <Content Include="Settings.config" />
+    <Content Include="Settings-example.config" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

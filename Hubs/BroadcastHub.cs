@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
@@ -9,6 +10,7 @@ using Server.Models.Manager;
 using ProtocolModels.Auth;
 using ProtocolModels.Notifications;
 using ProtocolModels.Broadcaster;
+using Server.Models;
 
 namespace Server.Hubs
 {
@@ -26,30 +28,38 @@ namespace Server.Hubs
             var instance = BroadcasterManager.GetInstance();
             if (instance.IsBroadcaster(connectionId))
             {
-                instance.RemoveBroadcaster(connectionId);
+                instance.RemoveBroadcaster(connectionId).Wait();
             }
 
             return base.OnDisconnected(stopCalled);
         }
 
-        public AuthorizeBroadcasterResponse Authorize(AuthorizeBroadcasterRequest request)
+        public async Task<AuthorizeBroadcasterResponse> Authorize(AuthorizeBroadcasterRequest request)
         {
             var connectionId = Context.ConnectionId;
             var instance = BroadcasterManager.GetInstance();
 
-            // TODO: 認証処理 from DB
-            var roomId = "";
-            var nickname = "";
-            // OKならDBに登録(IsOpening=True)
-
-
-            instance.RegisterBroadcaster(connectionId, roomId, nickname);
-            var response = new AuthorizeBroadcasterResponse()
+            using (var db = new ApplicationDbContext())
             {
-                IsSuccess = true
-            };
+                var accessUser = await db.AccessTokens
+                    .FirstOrDefaultAsync(c => c.AccessToken == request.AccessToken && c.User.UserName == request.UserName);
 
-            return response;
+                var room = await db.Rooms
+                    .FirstOrDefaultAsync(c => c.Id == request.RoomId && c.BroadcastToken == request.RoomToken);
+
+                if (room == null || accessUser == null)
+                    return new AuthorizeBroadcasterResponse()
+                    {
+                        IsSuccess = false
+                    };
+
+                await instance.RegisterBroadcaster(connectionId, room, accessUser.User);
+                
+                return new AuthorizeBroadcasterResponse()
+                {
+                    IsSuccess = true
+                };
+            }
         }
 
         #region "Broadcast全般"
