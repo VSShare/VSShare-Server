@@ -39,6 +39,29 @@ namespace Server.Models.Manager
             private set { this._cursorAnchorPosition = value; }
         }
 
+        private List<Line> ParseMultiLineData(List<Line> data)
+        {
+            var result = new List<Line>();
+            if (data == null)
+                return result;
+
+            foreach (var item in data)
+            {
+                if (item == null)
+                    continue;
+
+                if (item.Text == null)
+                {
+                    result.Add(item);
+                    continue;
+                }
+
+                result.AddRange(item.Text.Split('\n')
+                                    .Select(line => new Line() {IsModified = item.IsModified, Text = line}));
+            }
+            return result;
+        }
+
         public void UpdateContent(UpdateContentRequest request)
         {
             //var cloned =
@@ -62,7 +85,7 @@ namespace Server.Models.Manager
                                 continue;
 
                             if (this.Content.IsInRange(data.Position))
-                                this.Content.InsertRange((int)data.Position, data.Content);
+                                this.Content.InsertRange((int)data.Position, ParseMultiLineData(data.Content));
                             break;
                         case UpdateType.Replace:
                             if (data.Content == null)
@@ -74,7 +97,7 @@ namespace Server.Models.Manager
                                 this.Content.RemoveRange((int)data.Position, (int)data.Length);
 
                                 // 次に挿入
-                                this.Content.InsertRange((int)data.Position, data.Content);
+                                this.Content.InsertRange((int)data.Position, ParseMultiLineData(data.Content));
                             }
                             break;
                         case UpdateType.RemoveMarker:
@@ -90,7 +113,7 @@ namespace Server.Models.Manager
                             if (data.Content == null)
                                 continue;
 
-                            this.Content.AddRange(data.Content);
+                            this.Content.AddRange(ParseMultiLineData(data.Content));
                             break;
                     }
                 }

@@ -45,7 +45,7 @@ namespace Server.Hubs
                     .FirstOrDefaultAsync(c => c.AccessToken == request.AccessToken && c.User.UserName == request.UserName);
 
                 var room = await db.Rooms
-                    .FirstOrDefaultAsync(c => c.Id == request.RoomId && c.BroadcastToken == request.RoomToken);
+                    .FirstOrDefaultAsync(c => c.Name == request.RoomName && c.BroadcastToken == request.RoomToken);
 
                 if (room == null || accessUser == null)
                     return new AuthorizeBroadcasterResponse()
