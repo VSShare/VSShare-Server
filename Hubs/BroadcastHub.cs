@@ -11,6 +11,7 @@ using ProtocolModels.Auth;
 using ProtocolModels.Notifications;
 using ProtocolModels.Broadcaster;
 using Server.Models;
+using Newtonsoft.Json;
 
 namespace Server.Hubs
 {
@@ -54,7 +55,7 @@ namespace Server.Hubs
                     };
 
                 await instance.RegisterBroadcaster(connectionId, room, accessUser.User);
-                
+
                 return new AuthorizeBroadcasterResponse()
                 {
                     IsSuccess = true

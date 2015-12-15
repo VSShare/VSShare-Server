@@ -1,0 +1,46 @@
+﻿@model IEnumerable<Server.Models.UserAccessToken>
+
+@{
+    ViewBag.Title = "アクセストークンの管理";
+}
+
+<h2>アクセストークンの管理</h2>
+
+<p>
+    @using (Html.BeginForm("CreateAccessToken", "Manage", FormMethod.Post))
+    {
+
+        <div class="form-horizontal">
+            @Html.AntiForgeryToken()
+            <div class="form-group">
+                <div class="col-md-10">
+                    <input type="submit" value="Create New" class="btn btn-primary" />
+                </div>
+            </div>
+        </div>
+    }
+</p>
+<table class="table table-striped table-bordered">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.AccessToken)
+        </th>
+        <th>Action</th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.AccessToken)
+        </td>
+        <td>
+            @using (Html.BeginForm("RemoveAccessToken", "Manage", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken();
+                @Html.Hidden("key", item.AccessToken);
+                <input type="submit" value="Remove" class="btn btn-danger" />
+            }
+        </td>
+    </tr>
+}
+</table>

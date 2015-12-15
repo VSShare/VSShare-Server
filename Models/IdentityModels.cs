@@ -48,7 +48,7 @@ namespace Server.Models
 
         public IDbSet<Room> Rooms { get; set; }
 
-        public IDbSet<UserAccessToken> AccessTokens { get; set; } 
+        public IDbSet<UserAccessToken> AccessTokens { get; set; }
 
     }
 }

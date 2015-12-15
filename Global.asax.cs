@@ -5,6 +5,8 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
+using Microsoft.AspNet.SignalR;
+using Newtonsoft.Json;
 
 namespace Server
 {
@@ -18,4 +20,5 @@ namespace Server
             BundleConfig.RegisterBundles(BundleTable.Bundles);
         }
     }
+    
 }

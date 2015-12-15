@@ -20,6 +20,7 @@
     </dl>
 </div>
 <p>
-    @Html.ActionLink("Edit", "Settings", new { id = Model.Name }) |
+    @Html.ActionLink("Manage", "Manage", new { name = Model.Name }) |
+    @Html.ActionLink("Settings", "Settings", new { name = Model.Name }) |
     @Html.ActionLink("Back to List", "Index")
 </p>

@@ -32,7 +32,7 @@ namespace Server.Controllers
                 return RedirectToAction("Index");
             }
 
-            var room = await db.Rooms.Where(c => c.Name == name).SingleOrDefaultAsync();
+            var room = await db.Rooms.FirstOrDefaultAsync(c => c.Name == name);
             if (room == null)
             {
                 return HttpNotFound();
@@ -50,7 +50,7 @@ namespace Server.Controllers
                 return RedirectToAction("Index");
             }
 
-            var room = await db.Rooms.Where(c => c.Name == name).SingleOrDefaultAsync();
+            var room = await db.Rooms.FirstOrDefaultAsync(c => c.Name == name);
             if (room == null)
             {
                 return HttpNotFound();
@@ -102,7 +102,7 @@ namespace Server.Controllers
                 return RedirectToAction("Index", "Rooms");
 
             // Join
-            var room = await (from item in db.Rooms where item.Name == name select item).SingleOrDefaultAsync();
+            var room = await db.Rooms.FirstOrDefaultAsync(c => c.Name == name);
             if (room == null)
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
 
@@ -111,9 +111,8 @@ namespace Server.Controllers
             {
                 Item = room
             };
-
-            var userId = User.Identity.GetUserId();
-            var appUser = await db.Users.Where(user => user.Id == userId).SingleOrDefaultAsync();
+            
+            var appUser = await GetApplicationUser();
             if (!room.IsLive)
             {
                 if (appUser == null || !appUser.OwnerRooms.Contains(room))
@@ -174,7 +173,7 @@ namespace Server.Controllers
             if (auth != null)
                 authCode = auth;
 
-            var room = await db.Rooms.Where(c => c.Name == name).SingleOrDefaultAsync();
+            var room = await db.Rooms.FirstOrDefaultAsync(c => c.Name == name);
             if (room == null)
                 return new HttpStatusCodeResult(HttpStatusCode.NotFound);
 
@@ -250,7 +249,7 @@ namespace Server.Controllers
                 return RedirectToAction("Index");
             }
 
-            var room = await db.Rooms.Where(c => c.Name == name).SingleOrDefaultAsync();
+            var room = await db.Rooms.FirstOrDefaultAsync(c => c.Name == name);
             if (room == null)
             {
                 return HttpNotFound();
@@ -278,7 +277,7 @@ namespace Server.Controllers
                 return RedirectToAction("Index");
             }
 
-            var room = await db.Rooms.Where(c => c.Name == name).SingleOrDefaultAsync();
+            var room = await db.Rooms.FirstOrDefaultAsync(c => c.Name == name);
             if (room == null)
             {
                 return HttpNotFound();
@@ -317,7 +316,7 @@ namespace Server.Controllers
                 return RedirectToAction("Index");
             }
 
-            var room = await db.Rooms.Where(c => c.Name == name).SingleOrDefaultAsync();
+            var room = await db.Rooms.FirstOrDefaultAsync(c => c.Name == name);
             if (room == null)
             {
                 return HttpNotFound();
@@ -369,7 +368,7 @@ namespace Server.Controllers
                 return RedirectToAction("Index");
             }
 
-            var room = await db.Rooms.Where(c => c.Name == name).SingleOrDefaultAsync();
+            var room = await db.Rooms.FirstOrDefaultAsync(c => c.Name == name);
             if (room == null)
             {
                 return HttpNotFound();
@@ -396,7 +395,7 @@ namespace Server.Controllers
                 return RedirectToAction("Index");
             }
 
-            var room = await db.Rooms.Where(c => c.Name == name).SingleOrDefaultAsync();
+            var room = await db.Rooms.FirstOrDefaultAsync(c => c.Name == name);
             if (room == null)
             {
                 return HttpNotFound();
@@ -419,7 +418,7 @@ namespace Server.Controllers
         private async Task<ApplicationUser> GetApplicationUser()
         {
             var userId = User.Identity.GetUserId();
-            var appUser = await db.Users.Where(user => user.Id == userId).SingleOrDefaultAsync();
+            var appUser = await db.Users.FirstOrDefaultAsync(user => user.Id == userId);
             return appUser;
         }
 
@@ -427,7 +426,7 @@ namespace Server.Controllers
         [Authorize()]
         public async Task<ActionResult> IsRoomNameAvailable(string name)
         {
-            var room = await db.Rooms.Where(m => m.Name == name).SingleOrDefaultAsync();
+            var room = await db.Rooms.FirstOrDefaultAsync(m => m.Name == name);
             return Json(room == null, JsonRequestBehavior.AllowGet);
         }
 

@@ -7,6 +7,8 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using Server.Models;
+using System.Data.Entity;
+using System.Net;
 
 namespace Server.Controllers
 {
@@ -15,6 +17,8 @@ namespace Server.Controllers
     {
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
+
+        private ApplicationDbContext db = new ApplicationDbContext();
 
         public ManageController()
         {
@@ -75,6 +79,54 @@ namespace Server.Controllers
             return View(model);
         }
 
+        public async Task<ActionResult> AccessTokens()
+        {
+            var user = await GetApplicationUser();
+            if (user == null)
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+
+            return View(user.AccessTokens);
+        }
+        
+
+        [HttpPost()]
+        [ValidateAntiForgeryToken()]
+        public async Task<ActionResult> CreateAccessToken()
+        {
+            var user = await GetApplicationUser();
+            if (user == null)
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+
+            // Tokenの作成
+            var token = new UserAccessToken()
+            {
+                AccessToken = Guid.NewGuid().ToString(),
+                User = user
+            };
+            db.AccessTokens.Add(token);
+            await db.SaveChangesAsync();
+
+            return RedirectToAction("AccessTokens");
+        }
+
+        public async Task<ActionResult> RemoveAccessToken(string key)
+        {
+            var user = await GetApplicationUser();
+            if (user == null)
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+
+            // Tokenの検索
+            var token = user.AccessTokens.FirstOrDefault(c => c.AccessToken == key);
+            if (token == null)
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+
+            db.AccessTokens.Remove(token);
+            await db.SaveChangesAsync();
+
+            return RedirectToAction("AccessTokens");
+        }
+
+
         //
         // POST: /Manage/RemoveLogin
         [HttpPost]
@@ -97,118 +149,6 @@ namespace Server.Controllers
                 message = ManageMessageId.Error;
             }
             return RedirectToAction("ManageLogins", new { Message = message });
-        }
-
-        //
-        // GET: /Manage/AddPhoneNumber
-        public ActionResult AddPhoneNumber()
-        {
-            return View();
-        }
-
-        //
-        // POST: /Manage/AddPhoneNumber
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<ActionResult> AddPhoneNumber(AddPhoneNumberViewModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
-            // トークンを生成して送信します。
-            var code = await UserManager.GenerateChangePhoneNumberTokenAsync(User.Identity.GetUserId(), model.Number);
-            if (UserManager.SmsService != null)
-            {
-                var message = new IdentityMessage
-                {
-                    Destination = model.Number,
-                    Body = "あなたのセキュリティ コード: " + code
-                };
-                await UserManager.SmsService.SendAsync(message);
-            }
-            return RedirectToAction("VerifyPhoneNumber", new { PhoneNumber = model.Number });
-        }
-
-        //
-        // POST: /Manage/EnableTwoFactorAuthentication
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<ActionResult> EnableTwoFactorAuthentication()
-        {
-            await UserManager.SetTwoFactorEnabledAsync(User.Identity.GetUserId(), true);
-            var user = await UserManager.FindByIdAsync(User.Identity.GetUserId());
-            if (user != null)
-            {
-                await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
-            }
-            return RedirectToAction("Index", "Manage");
-        }
-
-        //
-        // POST: /Manage/DisableTwoFactorAuthentication
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<ActionResult> DisableTwoFactorAuthentication()
-        {
-            await UserManager.SetTwoFactorEnabledAsync(User.Identity.GetUserId(), false);
-            var user = await UserManager.FindByIdAsync(User.Identity.GetUserId());
-            if (user != null)
-            {
-                await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
-            }
-            return RedirectToAction("Index", "Manage");
-        }
-
-        //
-        // GET: /Manage/VerifyPhoneNumber
-        public async Task<ActionResult> VerifyPhoneNumber(string phoneNumber)
-        {
-            var code = await UserManager.GenerateChangePhoneNumberTokenAsync(User.Identity.GetUserId(), phoneNumber);
-            // 電話番号を確認するために SMS プロバイダー経由で SMS を送信します。
-            return phoneNumber == null ? View("Error") : View(new VerifyPhoneNumberViewModel { PhoneNumber = phoneNumber });
-        }
-
-        //
-        // POST: /Manage/VerifyPhoneNumber
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<ActionResult> VerifyPhoneNumber(VerifyPhoneNumberViewModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
-            var result = await UserManager.ChangePhoneNumberAsync(User.Identity.GetUserId(), model.PhoneNumber, model.Code);
-            if (result.Succeeded)
-            {
-                var user = await UserManager.FindByIdAsync(User.Identity.GetUserId());
-                if (user != null)
-                {
-                    await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
-                }
-                return RedirectToAction("Index", new { Message = ManageMessageId.AddPhoneSuccess });
-            }
-            // ここに到達した場合は何らかの問題が発生しているので、フォームを再表示します。
-            ModelState.AddModelError("", "電話番号を確認できませんでした");
-            return View(model);
-        }
-
-        //
-        // GET: /Manage/RemovePhoneNumber
-        public async Task<ActionResult> RemovePhoneNumber()
-        {
-            var result = await UserManager.SetPhoneNumberAsync(User.Identity.GetUserId(), null);
-            if (!result.Succeeded)
-            {
-                return RedirectToAction("Index", new { Message = ManageMessageId.Error });
-            }
-            var user = await UserManager.FindByIdAsync(User.Identity.GetUserId());
-            if (user != null)
-            {
-                await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
-            }
-            return RedirectToAction("Index", new { Message = ManageMessageId.RemovePhoneSuccess });
         }
 
         //
@@ -331,7 +271,14 @@ namespace Server.Controllers
             base.Dispose(disposing);
         }
 
-#region ヘルパー
+        private async Task<ApplicationUser> GetApplicationUser()
+        {
+            var userId = User.Identity.GetUserId();
+            var appUser = await db.Users.FirstOrDefaultAsync(user => user.Id == userId);
+            return appUser;
+        }
+
+        #region ヘルパー
         // 外部ログインの追加時に XSRF の防止に使用します
         private const string XsrfKey = "XsrfId";
 

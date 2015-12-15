@@ -39,7 +39,7 @@ namespace Server.Models.Manager
             return null;
         }
 
-        public bool IsOwnerSession(string connectionId, string sessionId)
+        public bool IsOwnerSession(string sessionId, string connectionId)
         {
             if (!this.Sessions.ContainsKey(sessionId))
             {
