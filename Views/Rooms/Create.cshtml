@@ -1,10 +1,10 @@
 ﻿@model Server.Models.CreateRoomViewModel
 
 @{
-    ViewBag.Title = "Create";
+    ViewBag.Title = "ルームの作成";
 }
 
-<h2>Create</h2>
+<h2>ルームの新規作成</h2>
 
 
 @using (Html.BeginForm()) 
@@ -12,37 +12,70 @@
     @Html.AntiForgeryToken()
     
     <div class="form-horizontal">
-        <h4>Room</h4>
+        <h4>ルーム情報の入力</h4>
         <hr />
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
         <div class="form-group">
             @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+                @Html.EditorFor(model => model.Name, new {htmlAttributes = new {@class = "form-control"}})
+                @Html.ValidationMessageFor(model => model.Name, "", new {@class = "text-danger"})
+                <p class="text-muted">この情報は後から変更できません</p>
             </div>
         </div>
 
         <div class="form-group">
-            @Html.LabelFor(model => model.DisplayName, htmlAttributes: new { @class = "control-label col-md-2" })
+            @Html.LabelFor(model => model.DisplayName, htmlAttributes: new {@class = "control-label col-md-2"})
             <div class="col-md-10">
-                @Html.EditorFor(model => model.DisplayName, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.DisplayName, "", new { @class = "text-danger" })
+                @Html.EditorFor(model => model.DisplayName, new {htmlAttributes = new {@class = "form-control"}})
+                @Html.ValidationMessageFor(model => model.DisplayName, "", new {@class = "text-danger"})
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.IsHidden, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                <input type="checkbox" name="IsHidden" value="true" id="IsHidden" data-toggle="toggle" data-on="非表示" data-off="表示" data-onstyle="danger">
+                @Html.ValidationMessageFor(model => model.IsHidden, "", new {@class = "text-danger"})
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.IsPrivate, htmlAttributes: new {@class = "control-label col-md-2"})
+            <div class="col-md-10">
+                <input type="checkbox" name="IsPrivate" value="true" id="IsPrivate" data-toggle="toggle" data-on="制限" data-off="無制限" data-onstyle="danger">
+                @Html.ValidationMessageFor(model => model.IsPrivate, "", new {@class = "text-danger"})
+            </div>
+        </div>
+
+        <div class="form-group" id="access-code-group" style="display:none;">
+            @Html.LabelFor(model => model.AccessCode, htmlAttributes: new { @class = "control-label col-md-2" })
+
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.AccessCode, new {htmlAttributes = new {@class = "form-control", id="access-code"}})
+                @Html.ValidationMessageFor(model => model.AccessCode, "", new {@class = "text-danger"})
             </div>
         </div>
 
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="Create" class="btn btn-default" />
+                <input type="submit" value="作成" class="btn btn-primary" />
             </div>
         </div>
     </div>
 }
 
 <div>
-    @Html.ActionLink("Back to List", "Index")
+    @Html.ActionLink("一覧へ戻る", "Index")
 </div>
 
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
+
+    <script>
+        $('#IsPrivate').change(function () {
+            $('#access-code-group').toggle(this.checked);
+        });
+    </script>
+
 }

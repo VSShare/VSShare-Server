@@ -38,6 +38,16 @@ namespace Server.Controllers
                 return HttpNotFound();
             }
 
+            var user = await GetApplicationUser();
+            if (user != null && user.Id == room.Owner.Id)
+            {
+                ViewBag.IsOwner = true;
+            }
+            else
+            {
+                ViewBag.IsOwner = false;
+            }
+
             return View(room);
         }
 
@@ -224,7 +234,8 @@ namespace Server.Controllers
             var room = new Room()
             {
                 CreatedAt = DateTime.Now,
-                AccessCode = "Random Seed",
+                LatestBroadcastDate = DateTime.Now,
+                AccessCode = Guid.NewGuid().ToString(),
                 Description = viewModel.Description,
                 DisplayName = viewModel.DisplayName,
                 IsHidden = viewModel.IsHidden,
@@ -232,12 +243,31 @@ namespace Server.Controllers
                 Name = viewModel.Name,
                 Id = Guid.NewGuid().ToString(),
                 Owner = user,
-                BroadcastToken = "Broadcast Token"
+                BroadcastToken = Guid.NewGuid().ToString()
             };
             db.Rooms.AddOrUpdate(room);
 
             await db.SaveChangesAsync();
             return RedirectToAction("Details", new { name = room.Name });
+        }
+
+        [HttpPost()]
+        [ValidateAntiForgeryToken()]
+        public async Task<ActionResult> ResetBroadcastToken(string name)
+        {
+
+            var user = await GetApplicationUser();
+            if (user == null)
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+
+            var model = await db.Rooms.FirstOrDefaultAsync(c => c.Name == name);
+            if (model.Owner.Id != user.Id)
+                return new HttpStatusCodeResult(HttpStatusCode.Forbidden);
+
+            model.BroadcastToken = Guid.NewGuid().ToString();
+            await db.SaveChangesAsync();
+
+            return RedirectToAction("Manage", new {name = name});
         }
 
         // GET: Rooms/Manage/5
@@ -304,7 +334,7 @@ namespace Server.Controllers
             }
 
             await db.SaveChangesAsync();
-            return RedirectToAction("Manage", new {name = name});
+            return RedirectToAction("Details", new {name = name});
         }
 
         // GET: Rooms/Manage/5
@@ -344,16 +374,22 @@ namespace Server.Controllers
             if (user == null)
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
 
+            ModelState.Remove("BroadcastToken");
+            ModelState.Remove("Owner");
             if (!ModelState.IsValid)
             {
                 return View(room);
             }
 
-            if (room.Owner.Id != user.Id)
+            var model = await db.Rooms.FirstOrDefaultAsync(c => c.Name == room.Name);
+            if (model.Owner.Id != user.Id)
                 return new HttpStatusCodeResult(HttpStatusCode.Forbidden);
 
-            // 変更をCommit
-            db.Entry(room).State = EntityState.Modified;
+            model.DisplayName = room.DisplayName;
+            model.Description = room.Description;
+            model.AccessCode = room.AccessCode;
+            model.IsHidden = room.IsHidden;
+            model.IsPrivate = room.IsPrivate;
 
             await db.SaveChangesAsync();
             return RedirectToAction("Manage", new {name = room.Name});

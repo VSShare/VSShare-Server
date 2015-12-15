@@ -1,26 +1,126 @@
-﻿@model Server.Models.Room
+﻿@using Server.Models
+@using Server.Models.Manager
+@model Server.Models.Room
 
 @{
-    ViewBag.Title = "Details";
+    ViewBag.Title = $"{Model.DisplayName}";
+    var isBroadcasterLogined = false;
+
+    if (ViewBag.IsOwner)
+    {
+        var instance = RoomManager.GetInstance();
+        if (instance.GetRoomInfo(Model.Id) != null)
+        {
+            isBroadcasterLogined = true;
+        }
+    }
 }
 
-<h2>Details</h2>
-
-<div>
-    <h4>Room</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.DisplayName)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.DisplayName)
-        </dd>
-    </dl>
+<div class="page-header">
+    <h1>@Model.DisplayName<small>(@Model.Name)</small>
+        @if (Model.IsPrivate)
+        {
+            <i class="glyphicon glyphicon-lock" title="閲覧パスワード付ルーム"></i>
+        }
+        @if (ViewBag.IsOwner)
+        {
+            <a href="@Url.Action("Manage", new { name = Model.Name })" title="管理">
+                <span class="glyphicon glyphicon-cog smaller" aria-hidden="true"></span>
+            </a>
+        }
+    </h1>
+    <ul class="list-inline list-inline-info">
+        <li class="text-muted">前回までの総来場者数： @Model.TotalVisitor</li>
+        <li class="text-muted">最終配信日： @Model.LatestBroadcastDate.ToString("yyyy年MM月dd日 HH:mm:ss")</li>
+        <li class="text-muted">作成者： @Model.Owner.UserName さん</li>
+    </ul>
 </div>
+
+@if (Model.IsHidden)
+{
+    <div class="alert alert-warning" role="alert">
+        <strong>注意</strong>
+        このルームは非公開ルームです。ルーム一覧には表示されないように設定されているため、URLの共有は慎重に行ってください。
+    </div>
+}
+
+@if (ViewBag.IsOwner)
+{
+    <div class="panel panel-primary">
+        <div class="panel-heading">管理パネル</div>
+        <div class="panel-body">
+            <p>あなたはこのルームの作成者です。</p>
+            @if (isBroadcasterLogined)
+            {
+                    <div class="form-inline" role="form">
+                        <div class="form-group">
+                            @if (Model.IsLive)
+                            {
+                                using (Html.BeginForm("Action", "Rooms", FormMethod.Post))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    @Html.Hidden("name", Model.Name)
+                                    @Html.Hidden("action", RoomAction.StopBroadcast)
+                                    <input type="submit" value="配信停止" class="btn btn-danger btn-secondary" />
+                                }
+                            }
+                            else
+                            {
+                                using (Html.BeginForm("Action", "Rooms", FormMethod.Post))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    @Html.Hidden("name", Model.Name)
+                                    @Html.Hidden("action", RoomAction.StartBroadcast)
+                                    <input type="submit" value="配信開始" class="btn btn-primary btn-secondary" />
+                                }
+                            }
+                        </div>
+                        @Html.ActionLink("参加する", "Join", new {name = Model.Name}, new {@class = "btn btn-success"})
+                    </div>
+            }
+            else
+            {
+                <p>ログイン中のセッションがありません。配信を開始するにはエディタからログインしてください</p>
+            }
+            <br/>
+            <div class="form-inline" role="form">
+                <div class="form-group">
+                    @Html.ActionLink("管理", "Manage", new {name = Model.Name}, new {@class = "btn btn-default"})
+                    @Html.ActionLink("編集", "Settings", new {name = Model.Name}, new {@class = "btn btn-default"})
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<div class="row">
+    <div class="col-sm-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                @Model.Description
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">配信画面</div>
+    <div class="panel-body">
+        @if (Model.IsLive)
+        {
+            <p>この部屋は現在配信中です。</p>
+            @Html.ActionLink("参加する", "Join", new { name = Model.Name }, new { @class = "btn btn-primary" })
+        }
+        else
+        {
+            <p>この部屋は現在配信していません。</p>
+            @Html.ActionLink("参加する", "Join", new { name = Model.Name }, new { @class = "btn btn-primary", disabled="disabled" })
+        }
+    </div>
+</div>
+
+
+
 <p>
-    @Html.ActionLink("Manage", "Manage", new { name = Model.Name }) |
-    @Html.ActionLink("Settings", "Settings", new { name = Model.Name }) |
-    @Html.ActionLink("Back to List", "Index")
+    @Html.ActionLink("一覧へ戻る", "Index")
 </p>

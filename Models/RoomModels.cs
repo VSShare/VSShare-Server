@@ -50,10 +50,15 @@ namespace Server.Models
         [Required]
         public virtual ApplicationUser Owner { get; set; }
 
+        [Display(Name = "総閲覧者数")]
         public long TotalVisitor { get; set; }
+
+        [Display(Name = "最終配信日")]
+        public DateTime LatestBroadcastDate { get; set; }
 
         public bool IsLive { get; set; }
 
+        [Display(Name = "作成日")]
         public DateTime CreatedAt { get; set; }
 
         public Room()

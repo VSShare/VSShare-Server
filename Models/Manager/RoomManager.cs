@@ -71,8 +71,12 @@ namespace Server.Models.Manager
                             .FirstOrDefaultAsync(c => c.Id == roomId);
                         if (room != null && room.IsLive)
                         {
+                            // EFのLazyLoadingのため...
+                            var owner = room.Owner;
+
                             // 自動的にDisconnectする
                             room.TotalVisitor = roomInfo.VisitorCount;
+                            room.LatestBroadcastDate = DateTime.Now;
                             room.IsLive = false;
                             await db.SaveChangesAsync();
                         }

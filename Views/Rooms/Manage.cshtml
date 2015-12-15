@@ -4,48 +4,100 @@
     ViewBag.Title = "Manage";
 }
 
-<h2>Manage</h2>
+<h2>ルームの管理</h2>
+<hr />
 
-<div>
-    <h4>Room</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.DisplayName)
-        </dt>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        ルーム情報
+    </div>
+    <div class="panel-body">
+        <div class="form-horizontal">
+            <div class="form-group">
+                @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                </div>
+            </div>
 
-        <dd>
-            @Html.DisplayFor(model => model.DisplayName)
-        </dd>
+            <div class="form-group">
+                @Html.LabelFor(model => model.DisplayName, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.DisplayName, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                </div>
+            </div>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.IsLive)
-        </dt>
+            <div class="form-group">
+                @Html.LabelFor(model => model.Description, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.Description, new { htmlAttributes = new { @class = "form-control", id= "description", disabled = "disabled" } })
+                    @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+                </div>
+            </div>
 
-        <dd>
-            @Html.DisplayFor(model => model.IsLive)
-        </dd>
+            <div class="form-group">
+                @Html.LabelFor(model => model.IsHidden, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    <input type="checkbox" name="IsHidden" value="true" @(Model.IsHidden ? "checked" : "") id="IsHidden" disabled="disabled" data-toggle="toggle" data-on="非表示" data-off="表示" data-onstyle="danger">
+                </div>
+            </div>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.BroadcastToken)
-        </dt>
+            <div class="form-group">
+                @Html.LabelFor(model => model.IsPrivate, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    <input type="checkbox" name="IsPrivate" value="true" @(Model.IsPrivate ? "checked" : "") id="IsPrivate" disabled="disabled" data-toggle="toggle" data-on="制限" data-off="無制限" data-onstyle="danger">
+                </div>
+            </div>
 
-        <dd>
-            @Html.DisplayFor(model => model.BroadcastToken)
-        </dd>
+            <div class="form-group" id="access-code-group"
+                 style="@(Model.IsPrivate ? "" : "display:none;" )">
+                @Html.LabelFor(model => model.AccessCode, htmlAttributes: new { @class = "control-label col-md-2", disabled = "disabled" })
 
-        <dt>
-            @Html.DisplayNameFor(model => model.AccessCode)
-        </dt>
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.AccessCode, new { htmlAttributes = new { @class = "form-control", id = "access-code", disabled = "disabled" } })
+                </div>
+            </div>
 
-        <dd>
-            @Html.DisplayFor(model => model.AccessCode)
-        </dd>
+            @Html.ActionLink("編集", "Settings", new { name = Model.Name }, new { @class = "btn btn-primary col-md-offset-2" })
+        </div>
+    </div>
+</div>
+<div class="panel panel-default">
+    <div class="panel-heading">配信用トークン</div>
+    <div class="panel-body">
+        <div class="form-horizontal">
+            <div class="form-group">
+                @Html.LabelFor(model => model.BroadcastToken, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10 form-control-static">
+                    @Model.BroadcastToken
+                </div>
+            </div>
+        </div>
 
+        @using (Html.BeginForm("ResetBroadcastToken", "Rooms", FormMethod.Post))
+            {
+            @Html.AntiForgeryToken()
+            ;
 
-    </dl>
+            @Html.Hidden("name", Model.Name)
+            <input type="submit" value="再生成" class="btn btn-danger col-md-offset-2" />
+        }
+    </div>
+</div>
+<div class="panel panel-danger">
+    <div class="panel-heading">ルームの削除</div>
+    <div class="panel-body">
+        @Html.ActionLink("削除ページへ", "Delete", new { name = Model.Name }, new { @class = "btn btn-danger col-md-offset-2" })
+    </div>
 </div>
 <p>
-    @Html.ActionLink("Settings", "Settings", new { name = Model.Name }) |
-    @Html.ActionLink("Back to List", "Index")
+    @Html.ActionLink("詳細ページへ戻る", "Details", new { name = Model.Name })
 </p>
+
+@section Scripts {
+    <script>
+        $('#description').autosize({
+        });
+    </script>
+
+}
