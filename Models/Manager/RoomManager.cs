@@ -4,8 +4,10 @@ using System.Data.Entity;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNet.SignalR;
 using ProtocolModels.Auth;
 using ProtocolModels.Broadcaster;
+using Server.Hubs;
 
 namespace Server.Models.Manager
 {
@@ -71,7 +73,7 @@ namespace Server.Models.Manager
                     await roomInfo.RemoveSession(new RemoveSessionRequest()
                     {
                         SessionId = session.Key
-                    });
+                    }, true);
                 }
 
                 roomInfo.Broadcasters.Remove(connectionId);
@@ -102,8 +104,13 @@ namespace Server.Models.Manager
                     var listenerManager = ListenerManager.GetInstance();
                     lock (roomInfo.Listeners)
                     {
+                        IHubContext hubContext = GlobalHost.ConnectionManager.GetHubContext<ListenHub>();
+
                         foreach (var listener in roomInfo.Listeners)
+                        {
                             listenerManager.RemoveListenerWithoutRoomOperation(listener);
+                            hubContext.Groups.Remove(listener, roomId).Wait();
+                        }
                     }
 
                     // 放送の終了

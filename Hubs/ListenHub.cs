@@ -100,7 +100,7 @@ namespace Server.Hubs
                 var info = instance.GetConnectionInfo(connectionId);
                 var roomInstance = RoomManager.GetInstance();
                 var room = roomInstance.GetRoomInfo(info.RoomId);
-                return room.GetSessionList();
+                return room?.GetSessionList() ?? null;
             }
             return null;
         }
@@ -114,15 +114,10 @@ namespace Server.Hubs
                 var info = instance.GetConnectionInfo(connectionId);
                 var roomInstance = RoomManager.GetInstance();
                 var room = roomInstance.GetRoomInfo(info.RoomId);
-                var session = room.GetSession(request.Id);
-                if (session != null)
-                {
-                    return session.GetSessionInfo();
-                }
+                return room?.GetSession(request.Id)?.GetSessionInfo() ?? null;
             }
             return null;
         }
-
 
         #endregion
 
@@ -137,11 +132,7 @@ namespace Server.Hubs
                 var info = instance.GetConnectionInfo(connectionId);
                 var roomInstance = RoomManager.GetInstance();
                 var room = roomInstance.GetRoomInfo(info.RoomId);
-                var session = room.GetSession(request.Id);
-                if (session != null)
-                {
-                    return session.GetContent();
-                }
+                return room?.GetSession(request.Id)?.GetContent() ?? null;
             }
             return null;
         }
@@ -159,11 +150,7 @@ namespace Server.Hubs
                 var info = instance.GetConnectionInfo(connectionId);
                 var roomInstance = RoomManager.GetInstance();
                 var room = roomInstance.GetRoomInfo(info.RoomId);
-                var session = room.GetSession(request.Id);
-                if (session != null)
-                {
-                    return session.GetCursor();
-                }
+                return room?.GetSession(request.Id)?.GetCursor() ?? null;
             }
             return null;
         }
