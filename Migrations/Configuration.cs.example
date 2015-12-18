@@ -1,0 +1,50 @@
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.EntityFramework;
+using Server.Models;
+
+namespace Server.Migrations
+{
+    using System;
+    using System.Data.Entity;
+    using System.Data.Entity.Migrations;
+    using System.Linq;
+
+    internal sealed class Configuration : DbMigrationsConfiguration<Server.Models.ApplicationDbContext>
+    {
+        public Configuration()
+        {
+            AutomaticMigrationsEnabled = true;
+        }
+
+        protected override void Seed(Server.Models.ApplicationDbContext context)
+        {
+            var roleManager = new RoleManager<ApplicationRole>(new RoleStore<ApplicationRole>(context));
+            var adminRole = roleManager.FindByName("admin");
+
+            if (adminRole == null)
+            {
+                adminRole = new ApplicationRole("admin");
+                var result = roleManager.Create(adminRole);
+            }
+
+            var userManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(context));
+
+            ApplicationUser user = userManager.FindByName("admin");
+            if (user == null)
+            {
+                user = new ApplicationUser()
+                {
+                    UserName = "admin",
+                };
+                var result = userManager.Create(user, "adminPassword@12345");
+            }
+
+            if (user.Roles.All(c => c.RoleId != adminRole.Id))
+            {
+                userManager.AddToRole(user.Id, "admin");
+            }
+
+            context.SaveChanges();
+        }
+    }
+}

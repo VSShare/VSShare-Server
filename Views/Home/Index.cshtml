@@ -8,14 +8,15 @@
 
 <div class="jumbotron">
     <h1>VSShare</h1>
-    <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS and JavaScript.</p>
+    <p class="lead">VSShareはリアルタイムにエディタ・シェルのコードを共有できるWebサービスです。<br/>
+    現在、Visual Studio・Visual Studio Code・tmux経由でのシェルの共有に対応しています。</p>
     @if (Request.IsAuthenticated)
     {
-        @Html.ActionLink("マイルームへ", "Index", "Manage", null, new { @class="btn btn-success btn-lg"})
+        @Html.ActionLink("Broadcast now»", "Index", "Manage", null, new { @class="btn btn-success btn-lg"})
     }
     else
     {
-        @Html.ActionLink("ユーザー登録", "Login", "Account", null, new { @class="btn btn-primary btn-lg"})
+        @Html.ActionLink("Register now»", "Login", "Account", null, new { @class="btn btn-primary btn-lg"})
     }
 </div>
 
@@ -52,7 +53,6 @@
                 </tr>
             }
         </table>
-
         @Html.ActionLink("もっと見る", "Index", "Rooms", null, new { @class = "btn btn-success" })
     }
     else

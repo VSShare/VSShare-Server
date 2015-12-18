@@ -15,22 +15,13 @@ namespace Server.Controllers
 
         public async Task<ViewResult> Index()
         {
-            var items = await db.Rooms.Where(c => c.IsLive).OrderByDescending(c => c.TotalVisitor).Take(5).ToListAsync();
+            var items = await db.Rooms.Where(c => c.IsLive && !c.IsHidden).OrderByDescending(c => c.TotalVisitor).Take(5).ToListAsync();
 
             return View(items);
         }
-
-        public ActionResult About()
+        
+        public ActionResult Credit()
         {
-            ViewBag.Message = "Your application description page.";
-
-            return View();
-        }
-
-        public ActionResult Contact()
-        {
-            ViewBag.Message = "Your contact page.";
-
             return View();
         }
     }

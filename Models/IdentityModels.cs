@@ -24,6 +24,17 @@ namespace Server.Models
 
 
     }
+    public class ApplicationRole : IdentityRole
+    {
+        public ApplicationRole() : base()
+        {
+        }
+
+        public ApplicationRole(string pRoleName) : base(pRoleName)
+        {
+        }
+    }
+
 
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
