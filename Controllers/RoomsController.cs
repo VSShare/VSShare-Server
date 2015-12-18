@@ -174,6 +174,12 @@ namespace Server.Controllers
             return View(viewModel);
         }
 
+        [AllowAnonymous()]
+        public async Task<ActionResult> JoinEmbedded(string name)
+        {
+            return await Join(name);
+        }
+
         [HttpPost()]
         [ValidateAntiForgeryToken()]
         [AllowAnonymous()]
@@ -253,9 +259,88 @@ namespace Server.Controllers
             return RedirectToAction("Live", new { name = name });
         }
 
+        [ValidateAntiForgeryToken()]
+        [HttpPost()]
+        [AllowAnonymous()]
+        public async Task<ActionResult> JoinEmbedded(string name, string auth)
+        {
+
+            if (string.IsNullOrEmpty(name))
+                return RedirectToAction("Index", "Rooms");
+
+            // Join
+            var room = await db.Rooms.FirstOrDefaultAsync(c => c.Name == name);
+            if (room == null)
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+
+            // ユーザーを取得できれば取得
+            var viewModel = new StatusMessageViewModel<JoinRoomViewModel>()
+            {
+                Item = new JoinRoomViewModel() { Room = room }
+            };
+
+            var appUser = await GetApplicationUser();
+            bool isBroadcaster = (appUser != null && room.Owner.Id == appUser.Id);
+            viewModel.Item.IsBroadcaster = isBroadcaster;
+
+            if (!room.IsLive)
+            {
+                if (appUser == null || !appUser.OwnerRooms.Contains(room))
+                {
+                    viewModel.Message = "現在ルームはオフラインです。管理者以外は入室できません。";
+                    viewModel.Type = MessageType.Error;
+                    return View(viewModel);
+                }
+                else if (isBroadcaster)
+                {
+                    var instance = RoomManager.GetInstance();
+                    if (instance.GetRoomInfo(room.Id) == null)
+                    {
+                        // まだ入れませんよ
+                        viewModel.Message = "あなたはこのルームの管理者です。ルームに入室するには、まずエディタからログインしてセッションを確立してください。";
+                        viewModel.Type = MessageType.Error;
+                        return View(viewModel);
+                    }
+                }
+            }
+
+            viewModel.Item.CanJoin = true;
+
+            if (room.IsPrivate && !isBroadcaster)
+            {
+                // 認証する
+                if (!String.IsNullOrWhiteSpace(auth))
+                {
+                    string passCode = auth;
+                    // 値が違う場合
+                    if (passCode != room.AccessCode)
+                    {
+                        viewModel.Type = MessageType.Error;
+                        viewModel.Message = "認証コードが違います";
+
+                        return View(viewModel);
+                    }
+                }
+                else
+                {
+                    viewModel.Type = MessageType.Warning;
+                    viewModel.Message = "このルームは認証が必要です";
+                    return View(viewModel);
+                }
+            }
+
+            // アクセスを許可 -> Tokenを発行
+            var tokenManager = TokenManager.GetInstance();
+            var token = tokenManager.CreateToken(room.Id);
+            await db.SaveChangesAsync();
+
+            TempData["token"] = token;
+
+            return RedirectToAction("LiveEmbedded", new { name = name });
+        }
 
         [AllowAnonymous()]
-        public async Task<ActionResult> Live(string name, string auth = null)
+        public async Task<ActionResult> Live(string name, string token = null)
         {
             var authCode = "";
 
@@ -264,8 +349,8 @@ namespace Server.Controllers
                 authCode = temp;
 
             // クエリストリングでも対応可能に
-            if (auth != null)
-                authCode = auth;
+            if (token != null)
+                authCode = token;
 
             var room = await db.Rooms.FirstOrDefaultAsync(c => c.Name == name);
             if (room == null)
@@ -276,7 +361,6 @@ namespace Server.Controllers
                 if (string.IsNullOrEmpty(name))
                     return RedirectToAction("Index", "Rooms");
 
-                // TODO: うまく動作するか確認
                 return RedirectToAction("Join", new { name = name });
             }
             
@@ -284,11 +368,45 @@ namespace Server.Controllers
             var tokenInfo = instance.GetTokenInfo(authCode);
             if (tokenInfo == null || tokenInfo != room.Id)
             {
-                // TODO: エラーページを用意
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
 
             return View(new Tuple<string,Room>(authCode, room));
+        }
+
+        [AllowAnonymous()]
+        public async Task<ActionResult> LiveEmbedded(string name, string token = null)
+        {
+            var authCode = "";
+
+            var temp = TempData["token"] as string;
+            if (!string.IsNullOrEmpty(temp))
+                authCode = temp;
+
+            // クエリストリングでも対応可能に
+            if (token != null)
+                authCode = token;
+
+            var room = await db.Rooms.FirstOrDefaultAsync(c => c.Name == name);
+            if (room == null)
+                return new HttpStatusCodeResult(HttpStatusCode.NotFound);
+
+            if (string.IsNullOrEmpty(authCode))
+            {
+                if (string.IsNullOrEmpty(name))
+                    return RedirectToAction("Index", "Rooms");
+
+                return RedirectToAction("JoinEmbedded", new { name = name });
+            }
+
+            var instance = TokenManager.GetInstance();
+            var tokenInfo = instance.GetTokenInfo(authCode);
+            if (tokenInfo == null || tokenInfo != room.Id)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+
+            return View(new Tuple<string, Room>(authCode, room));
         }
 
         // GET: Rooms/Create

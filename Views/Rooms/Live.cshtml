@@ -27,14 +27,30 @@
             </div>
         </div>
     </div>
-
 </div>
 
-<div class="live-view">
-    <p>
-        AuthCode
-    </p>
-    <p>
-        @Html.DisplayFor(model => model.Item1)
-    </p>
+<div class="row">
+    <div class="row">
+        <p><a id="open-child" class="btn btn-sm btn-default"><i class="glyphicon glyphicon-new-window"></i>子ウインドウ</a></p>
+    </div>
+
+    <div class="live-view">
+        <p>
+            AuthCode
+        </p>
+        <p>
+            @Html.DisplayFor(model => model.Item1)
+        </p>
+    </div>
 </div>
+
+
+@section Scripts {
+    <script>
+        $(function () {
+            $("#open-child").on("click", function() {
+                window.open(@(Url.Action("JoinEmbedded", new { name = Model.Item2.Name})), @(ViewBag.Title), "width=500,height=500,resizable=yes");
+            });
+        })
+    </script>
+}

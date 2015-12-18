@@ -19,7 +19,7 @@ namespace Server.Models.Manager
 
         public string BroadcasterName { get; set; }
 
-        public ContentType ContentType { get; set; }
+        public string ContentType { get; set; }
 
         public string FileName { get; set; }
 

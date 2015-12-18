@@ -307,6 +307,9 @@
     <Content Include="Settings.config" />
     <Content Include="Settings-example.config" />
     <Content Include="Views\Manage\AccessTokens.cshtml" />
+    <Content Include="Views\Rooms\LiveEmbedded.cshtml" />
+    <Content Include="Views\Rooms\JoinEmbedded.cshtml" />
+    <Content Include="Views\Shared\_EmbeddedLayout.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -1,0 +1,15 @@
+﻿@model Tuple<string, Server.Models.Room>
+
+@{
+    ViewBag.Title = "Live";
+    Layout = "~/Views/Shared/_EmbeddedLayout.cshtml";
+}
+
+<div class="live-view">
+    <p>
+        AuthCode
+    </p>
+    <p>
+        @Html.DisplayFor(model => model.Item1)
+    </p>
+</div>

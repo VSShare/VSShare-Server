@@ -1,0 +1,63 @@
+﻿@using Server.Models
+@model Server.Models.StatusMessageViewModel<Server.Models.JoinRoomViewModel>
+
+@{
+    ViewBag.Title = "ルームに参加する";
+    Layout = "~/Views/Shared/_EmbeddedLayout.cshtml";
+}
+
+<div>
+    @if (Model.Type != MessageType.None)
+    {
+        <div class="@Model.GetAlertClass()" role="alert">
+            @Model.Message
+        </div>
+    }
+
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Item.Room.DisplayName)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Item.Room.DisplayName)
+        </dd>
+        <dt>
+            放送状況
+        </dt>
+        <dd>
+            @if (Model.Item.Room.IsLive)
+            {
+                <p class="text-success">オンライン</p>
+            }
+            else
+            {
+                <p class="text-danger">オフライン</p>
+            }
+        </dd>
+    </dl>
+
+    @if (Model.Item.CanJoin)
+    {
+        <div class="row">
+            @using (Html.BeginForm())
+            {
+                @Html.AntiForgeryToken()
+                @Html.Hidden("name", Model.Item.Room.Name)
+
+                if (Model.Item.Room.IsPrivate && !Model.Item.IsBroadcaster)
+                {
+                    <div class="form-group">
+                        <p class="control-label col-md-2">閲覧パスワード</p>
+                        <div class="col-md-10">
+                            <input type="password" class="form-control" name="auth" placeholder="閲覧コードを入力" />
+                        </div>
+                    </div>
+                }
+
+                <div class="form-actions col-sm-offset-4 col-sm-8">
+                    <input type="submit" value="参加" class="btn btn-success" />
+                </div>
+            }
+        </div>
+    }
+</div>
