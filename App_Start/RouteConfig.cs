@@ -20,6 +20,13 @@ namespace Server
                 constraints: new { name = "[A-Za-z0-9_]*" }
                 );
 
+            //routes.MapRoute(
+            //    name: "Rooms",
+            //    url: "Rooms/{name}/{action}",
+            //    defaults: new { controller = "Rooms", action = "Details" },
+            //    constraints: new { name = "[A-Za-z0-9_]*" }
+            //    );
+
             routes.MapRoute(
                 name: "Default",
                 url: "{controller}/{action}/{id}",

@@ -59,13 +59,16 @@
                 }
 
                 <div class="form-actions col-sm-offset-4 col-sm-8">
-                    <input type="submit" value="参加" class="btn btn-success" />
-                    @Html.ActionLink("詳細へ戻る", "Details", new { name = Model.Item.Room.Name }, new { @class = "btn btn-default" })
+                    <input type="submit" value="参加" class="btn btn-success"/>
+                    @Html.ActionLink("詳細へ戻る", "Details", new {name = Model.Item.Room.Name}, new {@class = "btn btn-default"})
                 </div>
             }
         </div>
     }
+    else
+    {
+        <div class="col-sm-offset-4 col-sm-8">
+            @Html.ActionLink("詳細へ戻る", "Details", new { name = Model.Item.Room.Name }, new { @class = "btn btn-default" })
+        </div>
+    }
 </div>
-<p>
-    @Html.ActionLink("Edit", "Details", new { name = Model.Item.Room.Name })
-</p>
