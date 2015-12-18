@@ -66,15 +66,18 @@ namespace Server.Models.Manager
             return result;
         }
 
-        public async Task RemoveListener(string connectionId)
+        public async Task<string>  RemoveListener(string connectionId)
         {
             if (this._connections.ContainsKey(connectionId))
             {
                 var instance = RoomManager.GetInstance();
+                var roomId = this._connections[connectionId].RoomId;
                 await instance.RemoveListener(connectionId, this._connections[connectionId].RoomId);
 
                 this._connections.Remove(connectionId);
+                return roomId;
             }
+            return null;
         }
 
         public void RemoveListenerWithoutRoomOperation(string connectionId)

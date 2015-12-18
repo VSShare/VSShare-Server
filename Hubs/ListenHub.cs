@@ -29,7 +29,14 @@ namespace Server.Hubs
             var instance = ListenerManager.GetInstance();
             if (instance.IsListener(connectionId))
             {
-                instance.RemoveListener(connectionId).Wait();
+                instance.RemoveListener(connectionId).ContinueWith(c =>
+                {
+                    c.Wait();
+                    if (c.Result != null)
+                    {
+                        this.Groups.Remove(connectionId, c.Result).Wait();
+                    }
+                });
             }
 
             return base.OnDisconnected(stopCalled);
@@ -64,11 +71,22 @@ namespace Server.Hubs
 
             // OKならDBに登録(IsOpening=True)
 
-            await instance.RegisterListener(connectionId, roomId);
-            return new AuthorizeListenerResponse()
+            var result = await instance.RegisterListener(connectionId, roomId);
+            if (result)
             {
-                IsSuccess = true
-            };
+                await this.Groups.Add(connectionId, roomId);
+                return new AuthorizeListenerResponse()
+                {
+                    IsSuccess = true
+                };
+            }
+            else
+            {
+                return new AuthorizeListenerResponse()
+                {
+                    IsSuccess = false
+                };
+            }
         }
 
         #region "Session Request系"

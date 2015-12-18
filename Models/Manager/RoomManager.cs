@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ProtocolModels.Auth;
+using ProtocolModels.Broadcaster;
 
 namespace Server.Models.Manager
 {
@@ -62,6 +63,17 @@ namespace Server.Models.Manager
             if (this._rooms.ContainsKey(roomId))
             {
                 var roomInfo = this._rooms[roomId];
+                // Sessionが削除されたことを通知
+                var sessions = roomInfo.Sessions.Where(c => c.Value.BroadcasterId == connectionId);
+
+                foreach (var session in sessions)
+                {
+                    await roomInfo.RemoveSession(new RemoveSessionRequest()
+                    {
+                        SessionId = session.Key
+                    });
+                }
+
                 roomInfo.Broadcasters.Remove(connectionId);
                 if (roomInfo.Broadcasters.Count == 0)
                 {
