@@ -215,6 +215,7 @@
     </Compile>
     <Compile Include="Hubs\BroadcastHub.cs" />
     <Compile Include="Hubs\ListenHub.cs" />
+    <None Include="Migrations\Configuration.cs.example" />
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\PagingItemViewModel.cs" />
     <Compile Include="Models\StatusMessageViewModel.cs" />
@@ -275,8 +276,7 @@
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
-    <Content Include="Views\Home\About.cshtml" />
-    <Content Include="Views\Home\Contact.cshtml" />
+    <Content Include="Views\Home\Credit.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Account\_ExternalLoginsListPartial.cshtml" />
     <Content Include="Views\Account\ConfirmEmail.cshtml" />
