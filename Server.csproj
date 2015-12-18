@@ -216,6 +216,7 @@
     <Compile Include="Hubs\BroadcastHub.cs" />
     <Compile Include="Hubs\ListenHub.cs" />
     <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="Models\PagingItemViewModel.cs" />
     <Compile Include="Models\StatusMessageViewModel.cs" />
     <Compile Include="Models\TokenManager.cs" />
     <Compile Include="Models\AccessTokenModel.cs" />

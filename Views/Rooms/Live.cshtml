@@ -4,39 +4,37 @@
     ViewBag.Title = "Live";
 }
 
-<h2>Live</h2>
+<div class="page-header clearfix">
+    <div class="pull-left">
+        <h1>
+            @Model.Item2.DisplayName<small>(@Model.Item2.Name)</small>
+        </h1>
 
-<div>
-    <h4>Room</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.Item2.DisplayName)
-        </dt>
+        <p class="text-muted"><i class="glyphicon glyphicon-eye-open"></i> <span id="view-count">0</span></p>
+    </div>
 
-        <dd>
-            @Html.DisplayFor(model => model.Item2.DisplayName)
-        </dd>
+    <div class="well well-sm pull-right">
+        <div class="span10">
+            <h3>
+                放送ルーム情報
+                @Html.ActionLink("詳細", "Details", new { name = Model.Item2.Name }, new { @class = "btn btn-primary" })
+            </h3>
+            <div>
+                <ul class="list-inline list-inline-info">
+                    <li class="text-muted">前回までの総来場者数： @Model.Item2.TotalVisitor</li>
+                    <li class="text-muted">作成者： @Model.Item2.Owner.UserName さん</li>
+                </ul>
+            </div>
+        </div>
+    </div>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.Item2.IsLive)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Item2.IsLive)
-        </dd>
-
-        <dt>
-            AuthCode
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Item1)    
-        </dd>
-
-    </dl>
 </div>
-<p>
-    @Html.ActionLink("Edit", "Settings", new { name = Model.Item2.Name }) |
-    @Html.ActionLink("Back to List", "Index")
-</p>
+
+<div class="live-view">
+    <p>
+        AuthCode
+    </p>
+    <p>
+        @Html.DisplayFor(model => model.Item1)
+    </p>
+</div>

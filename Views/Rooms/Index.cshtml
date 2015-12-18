@@ -1,39 +1,136 @@
-﻿@model IEnumerable<Server.Models.Room>
+﻿@using Server.Models
+@model Server.Models.PagingItemViewModel<Server.Models.Room>
 
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "ルーム一覧";
 }
 
-<h2>Index</h2>
+<h2>ルーム一覧</h2>
 
-<p>
-    @Html.ActionLink("Create New", "Create")
-</p>
-<table class="table">
-    <tr>
-        <th>
-            @Html.DisplayNameFor(model => model.DisplayName)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.IsLive)
-        </th>
-        <th></th>
-    </tr>
+<div class="clearfix">
+    <div class="pull-left">
+        <p>
+            <a href="@Url.Action("Create", "Rooms")" class="btn btn-sm btn-success"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>&nbsp;ルームを作成</a>
+        </p>
+    </div>
 
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.DisplayName)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.IsLive)
-        </td>
-        <td>
-            @Html.ActionLink("Edit", "Settings", new { name=item.Name }) |
-            @Html.ActionLink("Details", "Details", new { name=item.Name }) |
-            @Html.ActionLink("Delete", "Delete", new { name=item.Name })
-        </td>
-    </tr>
+    <div class="pull-right col-md-6">
+            @using (Html.BeginForm("Index", "Rooms", FormMethod.Get))
+            {
+                <div class="input-group">
+                    @Html.Hidden("page", "1")
+                    <div class="input-group-btn search-panel">
+                        <div class="dropdown" id="sort-dropdown">
+                            <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                                @(Model.SortType == SortType.Created ? "登録日順" : "訪問者数順")
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a href="#" data-value="0">登録日順</a></li>
+                                <li><a href="#" data-value="1">訪問者数順</a></li>
+                            </ul>
+                            <input type="hidden" name="sort" value="@(Model.SortType == SortType.Created ? "0" : "1")">
+                        </div>
+                    </div>
+
+                    <div class="input-group-btn search-panel">
+                        <div class="dropdown" id="live-dropdown">
+                            <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                                @(Model.IsLive ? "全て" : "放送中")
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a href="#" data-value="false">全て</a></li>
+                                <li><a href="#" data-value="true">放送中</a></li>
+                            </ul>
+                            <input type="hidden" name="sort" value="@(Model.IsLive ? "true" : "false")">
+                        </div>
+                    </div>
+
+                    <input id="search-room" type="text" class="form-control" name="filter" value="@Model.Query" placeholder="ルームを検索...">
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" type="submit"><span class="glyphicon glyphicon-search"></span></button>
+                    </span>
+                </div>
+            }
+    </div>
+
+</div>
+
+<div class="row">
+    <table class="table table-bordered table-striped">
+        <tr>
+            <th>ルーム名</th>
+            <th>総訪問者数</th>
+        </tr>
+
+        @foreach (Room item in Model.Results)
+        {
+            <tr>
+                <td>
+                    @if (item.IsLive)
+                {
+                        <i class="glyphicon glyphicon-bullhorn" title="放送中"></i>
+                    }
+
+                    @Html.ActionLink(item.DisplayName, "Details", new { name = item.Name })
+                    @if (item.IsPrivate)
+                {
+                        <i class="glyphicon glyphicon-lock" title="閲覧パスワード付ルーム"></i>
+                    }
+                </td>
+                <td>
+                    @item.TotalVisitor
+                </td>
+            </tr>
+        }
+    </table>
+
+    <ul class="pagination">
+        @if (Model.CurrentPage == 1)
+        {
+            <li class="disabled"><a href="javascript: void(0)" onclick="return false;">«</a></li>
+        }
+        else
+        {
+            <li>@Html.ActionLink("«", "Index", "Rooms", new { page = Model.CurrentPage - 1, sort = Model.SortType, filter = Model.Query, isLive = Model.IsLive }, null)</li>
+        }
+        @for (var i = Model.StartPage; i <= Model.EndPage; i++)
+        {
+            if (i == Model.CurrentPage)
+            {
+                <li class="active"><a href="javascript: void(0)" onclick="return false;">@i<span class="sr-only">(current)</span></a></li>
+            }
+            else
+            {
+                <li>@Html.ActionLink(i.ToString(), "Index", "Rooms", new { page = Model.CurrentPage - 1, sort = Model.SortType, filter = Model.Query, isLive = Model.IsLive }, null)</li>
+            }
+        }
+        @if (Model.CurrentPage == Model.TotalPages)
+        {
+            <li class="disabled"><a href="javascript: void(0)" onclick="return false;">»</a></li>
+        }
+        else
+        {
+            <li class="nextpage">@Html.ActionLink("»", "Index", "Rooms", new { page = Model.CurrentPage - 1, sort = Model.SortType, filter = Model.Query, isLive = Model.IsLive }, null)</li>
+        }
+    </ul>
+</div>
+
+@section Scripts {
+    <script>
+        $(function () {
+            $("#sort-dropdown .dropdown-menu li a").click(function () {
+                $(this).parents('.dropdown').find('.dropdown-toggle').html($(this).text() + ' <span class="caret"></span>');
+                $(this).parents('.dropdown').find('input[name="sort"]').val($(this).attr("data-value"));
+            });
+
+            $("#live-dropdown .dropdown-menu li a").click(function () {
+                $(this).parents('.dropdown').find('.dropdown-toggle').html($(this).text() + ' <span class="caret"></span>');
+                $(this).parents('.dropdown').find('input[name="sort"]').val($(this).attr("data-value"));
+            });
+
+
+        });
+    </script>
 }
-
-</table>

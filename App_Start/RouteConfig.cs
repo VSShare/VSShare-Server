@@ -14,6 +14,13 @@ namespace Server
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
             routes.MapRoute(
+                name: "Rooms",
+                url: "Rooms/{action}/{name}",
+                defaults: new { controller = "Rooms", action = "Details" },
+                constraints: new { name = "[A-Za-z0-9_]*" }
+                );
+
+            routes.MapRoute(
                 name: "Default",
                 url: "{controller}/{action}/{id}",
                 defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }

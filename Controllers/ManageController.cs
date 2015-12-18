@@ -68,13 +68,18 @@ namespace Server.Controllers
                 : "";
 
             var userId = User.Identity.GetUserId();
+            var user = await GetApplicationUser();
+            if (user == null)
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+
             var model = new IndexViewModel
             {
                 HasPassword = HasPassword(),
                 PhoneNumber = await UserManager.GetPhoneNumberAsync(userId),
                 TwoFactor = await UserManager.GetTwoFactorEnabledAsync(userId),
                 Logins = await UserManager.GetLoginsAsync(userId),
-                BrowserRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(userId)
+                BrowserRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(userId),
+                User = user
             };
             return View(model);
         }
@@ -125,7 +130,6 @@ namespace Server.Controllers
 
             return RedirectToAction("AccessTokens");
         }
-
 
         //
         // POST: /Manage/RemoveLogin
@@ -184,8 +188,14 @@ namespace Server.Controllers
 
         //
         // GET: /Manage/SetPassword
-        public ActionResult SetPassword()
+        public async Task<ActionResult> SetPassword()
         {
+            var hasPassword = await UserManager.HasPasswordAsync(User.Identity.GetUserId());
+            if (hasPassword)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+
             return View();
         }
 
@@ -195,6 +205,12 @@ namespace Server.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> SetPassword(SetPasswordViewModel model)
         {
+            var hasPassword = await UserManager.HasPasswordAsync(User.Identity.GetUserId());
+            if (hasPassword)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+
             if (ModelState.IsValid)
             {
                 var result = await UserManager.AddPasswordAsync(User.Identity.GetUserId(), model.NewPassword);

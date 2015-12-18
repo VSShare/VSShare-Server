@@ -14,17 +14,79 @@ using Server.Models.Manager;
 
 namespace Server.Controllers
 {
+    [Authorize()]
     public class RoomsController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
 
+        private const int PagingItemCount = 20;
+
         // GET: Rooms
-        public ActionResult Index()
+        [AllowAnonymous()]
+        public async Task<ViewResult> Index(string filter = null, SortType sort = SortType.Created, bool isLive = false, int page = 1)
         {
-            return View(db.Rooms.ToList());
+            var viewModel = new PagingItemViewModel<Room>()
+            {
+                IsLive = false
+            };
+
+            IQueryable<Room> items = db.Rooms.Where(c => !c.IsHidden);
+
+            if (filter != null)
+            {
+                items = items.Where(c => c.DisplayName.Contains(filter));
+                viewModel.Query = filter;
+            }
+
+            if (isLive)
+            {
+                items = items.Where(c => c.IsLive);
+                viewModel.IsLive = true;
+            }
+
+            switch (sort)
+            {
+                case SortType.Visitor:
+                    items = items.OrderByDescending(c => c.TotalVisitor);
+                    break;
+                case SortType.Created:
+                default:
+                    items = items.OrderByDescending(c => c.CreatedAt);
+                    break;
+            }
+
+            // トータル投稿数
+            viewModel.TotalCount = await items.CountAsync();
+
+            // トータルページ数
+            viewModel.TotalPages = (viewModel.TotalCount - 1) / PagingItemCount + 1;
+            if (viewModel.TotalPages < page)
+            {
+                viewModel.CurrentPage = 1;
+            }
+            else
+            {
+                viewModel.CurrentPage = page;
+            }
+
+            // StartPageのNumber
+            viewModel.StartPage = viewModel.CurrentPage - PagingItemCount;
+            if (viewModel.StartPage < 1)
+                viewModel.StartPage = 1;
+
+            // EndPageのNumber
+            viewModel.EndPage = viewModel.CurrentPage + PagingItemCount - 1;
+            if (viewModel.EndPage > viewModel.TotalPages)
+                viewModel.EndPage = viewModel.TotalPages;
+
+            // 最初のn件だけ要素を取得
+            viewModel.Results = await items.Skip((viewModel.CurrentPage - 1) * PagingItemCount).Take(PagingItemCount).ToListAsync();
+
+            return View(viewModel);
         }
 
         // GET: Rooms/Details/5
+        [AllowAnonymous()]
         public async Task<ActionResult> Details(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
@@ -67,12 +129,15 @@ namespace Server.Controllers
             }
 
             // ユーザーを取得できれば取得
-            var viewModel = new StatusMessageViewModel<Room>()
+            var viewModel = new StatusMessageViewModel<JoinRoomViewModel>()
             {
-                Item = room
+                Item = new JoinRoomViewModel() {Room = room}
             };
 
             var appUser = await GetApplicationUser();
+            bool isBroadcaster = (appUser != null && room.Owner.Id == appUser.Id);
+            viewModel.Item.IsBroadcaster = isBroadcaster;
+
             if (!room.IsLive)
             {
                 if (appUser == null || !appUser.OwnerRooms.Contains(room))
@@ -82,25 +147,31 @@ namespace Server.Controllers
                     viewModel.Type = MessageType.Error;
                     return View(viewModel);
                 }
+                else if (isBroadcaster)
+                {
+                    var instance = RoomManager.GetInstance();
+                    if (instance.GetRoomInfo(room.Id) == null)
+                    {
+                        // まだ入れませんよ
+                        viewModel.Message = "あなたはこのルームの管理者です。ルームに入室するには、まずエディタからログインしてセッションを確立してください。";
+                        viewModel.Type = MessageType.Error;
+                        return View(viewModel);
+                    }
+                }
             }
 
-            var userName = appUser == null ? "Anonymous" : appUser.UserName;
-            bool isBroadcaster = (appUser != null && room.Owner.Id == appUser.Id);
+            viewModel.Item.CanJoin = true;
 
             if (room.IsPrivate && !isBroadcaster)
             {
                 // 認証する
                 viewModel.Type = MessageType.Warning;
                 viewModel.Message = "このルームは認証が必要です";
+                viewModel.Item.CanJoin = true;
                 return View(viewModel);
             }
 
-            // アクセスを許可 -> Tokenを発行
-            var instance = TokenManager.GetInstance();
-            var token = instance.CreateToken(room.Id);
-            TempData["token"] = token;
-
-            return RedirectToAction("Live", new { name = name });
+            return View(viewModel);
         }
 
         [HttpPost()]
@@ -117,12 +188,15 @@ namespace Server.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
 
             // ユーザーを取得できれば取得
-            var viewModel = new StatusMessageViewModel<Room>()
+            var viewModel = new StatusMessageViewModel<JoinRoomViewModel>()
             {
-                Item = room
+                Item = new JoinRoomViewModel() { Room = room}
             };
             
             var appUser = await GetApplicationUser();
+            bool isBroadcaster = (appUser != null && room.Owner.Id == appUser.Id);
+            viewModel.Item.IsBroadcaster = isBroadcaster;
+
             if (!room.IsLive)
             {
                 if (appUser == null || !appUser.OwnerRooms.Contains(room))
@@ -131,10 +205,20 @@ namespace Server.Controllers
                     viewModel.Type = MessageType.Error;
                     return View(viewModel);
                 }
+                else if (isBroadcaster)
+                {
+                    var instance = RoomManager.GetInstance();
+                    if (instance.GetRoomInfo(room.Id) == null)
+                    {
+                        // まだ入れませんよ
+                        viewModel.Message = "あなたはこのルームの管理者です。ルームに入室するには、まずエディタからログインしてセッションを確立してください。";
+                        viewModel.Type = MessageType.Error;
+                        return View(viewModel);
+                    }
+                }
             }
 
-            var userName = appUser == null ? "Anonymous" : appUser.UserName;
-            bool isBroadcaster = (appUser != null && room.Owner.Id == appUser.Id);
+            viewModel.Item.CanJoin = true;
 
             if (room.IsPrivate && !isBroadcaster)
             {

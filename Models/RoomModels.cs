@@ -104,4 +104,17 @@ namespace Server.Models
 
     }
 
+    public class JoinRoomViewModel
+    {
+        
+        public Room Room { get; set; }
+
+        public bool CanJoin { get; set; } = false;
+
+        public bool IsBroadcaster { get; set; } = false;
+
+
+    }
+
+
 }

@@ -1,32 +1,101 @@
 ﻿@model Server.Models.IndexViewModel
 @{
-    ViewBag.Title = "管理";
+    ViewBag.Title = "アカウント設定";
 }
 
-<h2>@ViewBag.Title.</h2>
+<h2>アカウント設定</h2>
 
 <p class="text-success">@ViewBag.StatusMessage</p>
-<div>
-    <h4>アカウント設定の変更</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>パスワード:</dt>
-        <dd>
-            [
-            @if (Model.HasPassword)
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">マイルーム</div>
+    <div class="panel-body">
+        <p>
+            <a href="@Url.Action("Create", "Rooms")" class="btn btn-sm btn-success"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>&nbsp;ルームを作成</a>
+        </p>
+
+
+        <table class="table table-striped table-bordered">
+            <tr>
+                <th>
+                    ルーム
+                </th>
+                <th></th>
+            </tr>
+
+            @foreach (var item in Model.User.OwnerRooms)
             {
-                @Html.ActionLink("パスワードの変更", "ChangePassword")
+                <tr>
+                    <td>
+                        @Html.ActionLink(item.DisplayName, "Details", "Rooms", new {name = item.Name}, null)
+                    </td>
+                    <td>
+                        @Html.ActionLink("管理", "Manage", "Rooms", new {name = item.Name}, null) |
+                        @Html.ActionLink("編集", "Settings", "Rooms", new {name = item.Name}, null) |
+                        @Html.ActionLink("削除", "Delete", "Rooms", new {name = item.Name}, null)
+                    </td>
+                </tr>
             }
-            else
-            {
-                @Html.ActionLink("作成", "SetPassword")
-            }
-            ]
-        </dd>
-        <dt>外部ログイン:</dt>
-        <dd>
-            @Model.Logins.Count [
-            @Html.ActionLink("管理", "ManageLogins") ]
-        </dd>
-    </dl>
+        </table>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">配信用トークンの管理</div>
+    <div class="panel-body">
+        <p>
+            @Html.ActionLink("配信用トークンの管理", "AccessTokens", null, new { @class = "btn btn-primary"})
+        </p>
+    </div>
+</div>
+
+
+
+<div class="panel panel-danger">
+    <div class="panel-heading">アカウント認証の管理</div>
+    <div class="panel-body">
+        <table class="table">
+            <tr>
+                <th>
+                    認証方式
+                </th>
+                <th></th>
+            </tr>
+
+            <tr>
+                <td>パスワード</td>
+                <td>
+                    @if (Model.HasPassword)
+                    {
+                        @Html.ActionLink("パスワードの変更", "ChangePassword", null, new { @class = "btn btn-danger" })
+                    }
+                    else
+                    {
+                        @Html.ActionLink("作成", "SetPassword", null, new { @class = "btn btn-danger" })
+                    }
+                </td>
+            </tr>
+
+            <tr>
+
+                <td>外部認証</td>
+                <td>
+                    @if (Model.Logins != null)
+                    {
+                        <p>
+                            認証済みのアカウント：
+                            <strong>
+                                @string.Join(",", Model.Logins.Select(c => c.LoginProvider))
+                            </strong>
+                        </p>
+                    }
+
+                    <p>
+                        @Html.ActionLink("管理", "ManageLogins", null, new { @class = "btn btn-danger" })
+                    </p>
+                </td>
+            </tr>
+        </table>
+    </div>
 </div>
