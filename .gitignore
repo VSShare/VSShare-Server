@@ -3,6 +3,7 @@
 
 Settings.config
 Migrations/Configuration.cs
+ApplicationInsights.config
 
 # User-specific files
 *.suo
