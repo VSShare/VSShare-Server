@@ -1,4 +1,5 @@
 ﻿@using Microsoft.AspNet.Identity
+@using Microsoft.Owin.Security
 @if (Request.IsAuthenticated)
 {
     using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "navbar-right" }))
@@ -16,7 +17,50 @@
 else
 {
     <ul class="nav navbar-nav navbar-right">
-        <li>@Html.ActionLink("登録", "Register", "Account", routeValues: null, htmlAttributes: new { id = "registerLink" })</li>
-        <li>@Html.ActionLink("ログイン", "Login", "Account", routeValues: null, htmlAttributes: new { id = "loginLink" })</li>
+        <li><p class="navbar-text">既にアカウントをお持ちですか？</p></li>
+        <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b>ログイン</b> <span class="caret"></span></a>
+            <ul id="login-dp" class="dropdown-menu">
+                <li>
+                    <div class="row">
+                        <div class="col-md-12">
+                            外部認証
+                            <div class="social-buttons">
+                                @using (Html.BeginForm("ExternalLogin", "Account", null))
+                                {
+                                    @Html.AntiForgeryToken();
+                                    <button type="submit" class="btn btn-tw" id="Twitter" name="provider" value="Twitter" title="Twitter アカウントを使用してログイン"><i class="fa fa-twitter"></i> Twitter</button>
+                                }
+                            </div>
+                            もしくは
+                            @using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form", role = "form" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                <div class="form-group">
+                                    <label class="sr-only" for="EmailOrUserName">Email address</label>
+                                    <input class="form-control" id="EmailOrUserName" name="EmailOrUserName" placeholder="メールアドレス or ユーザー名">
+                                </div>
+                                <div class="form-group">
+                                    <label class="sr-only" for="Password">Password</label>
+                                    <input type="password" class="form-control" id="Password" name="Password" placeholder="パスワード">
+                                    <div class="help-block text-right">@Html.ActionLink("パスワードを忘れた方", "ForgotPassword", "Account")</div>
+                                </div>
+                                <div class="form-group">
+                                    <button type="submit" class="btn btn-primary btn-block">ログイン</button>
+                                </div>
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" name="RememberMe">このアカウントを記憶する
+                                    </label>
+                                </div>
+                            }
+                        </div>
+                        <div class="bottom text-center">
+                            <a href="@Url.Action("Register", "Account")"><b>新規登録</b></a>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </li>
     </ul>
 }
