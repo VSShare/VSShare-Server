@@ -36,14 +36,14 @@
                     <div class="input-group-btn search-panel">
                         <div class="dropdown" id="live-dropdown">
                             <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-                                @(Model.IsLive ? "全て" : "放送中")
+                                @(Model.IsLive ? "放送中" : "全て" )
                                 <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu">
                                 <li><a href="#" data-value="false">全て</a></li>
                                 <li><a href="#" data-value="true">放送中</a></li>
                             </ul>
-                            <input type="hidden" name="sort" value="@(Model.IsLive ? "true" : "false")">
+                            <input type="hidden" name="isLive" value="@(Model.IsLive ? "true" : "false")">
                         </div>
                     </div>
 
@@ -127,7 +127,7 @@
 
             $("#live-dropdown .dropdown-menu li a").click(function () {
                 $(this).parents('.dropdown').find('.dropdown-toggle').html($(this).text() + ' <span class="caret"></span>');
-                $(this).parents('.dropdown').find('input[name="sort"]').val($(this).attr("data-value"));
+                $(this).parents('.dropdown').find('input[name="isLive"]').val($(this).attr("data-value"));
             });
 
 

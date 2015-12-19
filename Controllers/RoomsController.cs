@@ -48,10 +48,12 @@ namespace Server.Controllers
             {
                 case SortType.Visitor:
                     items = items.OrderByDescending(c => c.TotalVisitor);
+                    viewModel.SortType = SortType.Visitor;
                     break;
                 case SortType.Created:
                 default:
                     items = items.OrderByDescending(c => c.CreatedAt);
+                    viewModel.SortType = SortType.Created;
                     break;
             }
 
