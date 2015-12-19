@@ -13,6 +13,7 @@ using Server.Models;
 
 namespace Server.Controllers
 {
+    [AiHandleError()]
     public class DocumentsController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();

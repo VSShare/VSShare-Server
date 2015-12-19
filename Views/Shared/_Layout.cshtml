@@ -7,7 +7,8 @@
     <title>@(ViewBag.Title == "" ? "VSShareβ" : ViewBag.Title + " | VSShareβ")</title>
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
-    <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.0/css/bootstrap-toggle.min.css" rel="stylesheet">
+    @RenderSection("styles", required: false)
+    <link href="//gitcdn.github.io/bootstrap-toggle/2.2.0/css/bootstrap-toggle.min.css" rel="stylesheet">
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
     <meta name="description" content="VSShareはリアルタイムにエディタのコードを共有できるWebサービスです。" />
 </head>
@@ -36,15 +37,16 @@
     <div class="container body-content">
         @RenderBody()
         <hr />
-        <footer>
-            <p>&copy; @DateTime.Now.Year - VSShare</p>
-        </footer>
     </div>
+    @RenderSection("outcontainer", required: false)
+    <footer>
+        <p>&copy; @DateTime.Now.Year - VSShare</p>
+    </footer>
 
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
-    <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.0/js/bootstrap-toggle.min.js"></script>
-    <script type="text/javascript" src="http://bowercdn.net/c/jquery-autosize-1.18.18/jquery.autosize.min.js"></script>
+    <script src="//gitcdn.github.io/bootstrap-toggle/2.2.0/js/bootstrap-toggle.min.js"></script>
+    <script type="text/javascript" src="//bowercdn.net/c/jquery-autosize-1.18.18/jquery.autosize.min.js"></script>
     @RenderSection("scripts", required: false)
 </body>
 </html>

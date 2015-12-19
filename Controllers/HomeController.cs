@@ -9,6 +9,7 @@ using Server.Models;
 
 namespace Server.Controllers
 {
+    [AiHandleError()]
     public class HomeController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();

@@ -12,6 +12,7 @@ using System.Net;
 
 namespace Server.Controllers
 {
+    [AiHandleError()]
     public class ManageController : Controller
     {
         private ApplicationSignInManager _signInManager;

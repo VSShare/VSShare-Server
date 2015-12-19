@@ -14,6 +14,7 @@ using Server.Models;
 namespace Server.Controllers
 {
     [Authorize]
+    [AiHandleError()]
     public class AccountController : Controller
     {
         private ApplicationSignInManager _signInManager;

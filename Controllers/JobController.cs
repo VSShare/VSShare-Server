@@ -13,6 +13,7 @@ namespace Server.Controllers
 {
     [Route("job")]
     [Authorize(Roles = "job")]
+    [AiHandleError()]
     public class JobController : ApiController
     {
         public HttpResponseMessage RunJob()

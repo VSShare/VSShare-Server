@@ -1,0 +1,121 @@
+﻿body {
+    padding-top: 50px;
+    height: 100%;
+}
+
+body>.container {
+    margin-top: 20px;
+    margin-bottom: 20px
+}
+
+
+.social-buttons {
+    margin: 10px 0
+}
+
+.glyphicon {
+    margin: 0 .5em
+}
+
+.rooms-container {
+    margin: 1em 0
+}
+
+.filename-container {
+    font-size: 1em
+}
+
+#filename {
+    font-size: 1.5em
+}
+
+.language-container {
+    font-size: .8em
+}
+
+.build-result {
+    text-decoration: underline
+}
+
+.golden-layout-container {
+    min-height: 60%;
+    position:relative;
+}
+
+#golden-layout{
+    /* width: 100%; */
+    left: 10px;
+    right: 10px;
+    height: 100%;
+    position: absolute;
+    display: block;
+    -webkit-box-sizing: border-box;
+    -khtml-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+html {
+    height: 100%;
+}
+
+pre.code {
+    height: 100%;
+}
+
+.modified::after{
+    content: " ";
+    background: #6d6;
+    width: 2px;
+    right: 0;
+    height: 100%;
+    background-size: contain;
+    align-content: flex-end;
+    position: absolute;
+}
+
+.modified {
+    position: relative;
+}
+
+.ace_cursor {
+    display: none;
+}
+
+.ace_real-cursor {
+    z-index: 4;
+    position: absolute;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    border-left: 0.2em solid;
+    transform: translatez(0);
+    color: #E88;
+}
+
+.ace_active-line {
+    display: none;
+}
+
+.ace_gutter-active-line {
+    display: none;
+}
+
+.ace_gutter-real-active-line {
+    background-color: #dcdcdc;
+    left: 0;
+    right: 0;
+}
+
+.ace_real-active-line {
+    background: rgba(0, 0, 0, 0.07);
+    position: absolute;
+    z-index: 2;
+}
+
+.ace_real-selection {
+    background: rgb(255, 181, 213);
+    position: absolute;
+    z-index: 5;
+}

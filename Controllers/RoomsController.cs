@@ -15,6 +15,7 @@ using Server.Models.Manager;
 namespace Server.Controllers
 {
     [Authorize()]
+    [AiHandleError()]
     public class RoomsController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
