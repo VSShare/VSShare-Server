@@ -12,7 +12,14 @@ namespace Server
         public static void RegisterRoutes(RouteCollection routes)
         {
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
-            
+
+            routes.MapRoute(
+                name: "Documents",
+                url: "Documents/{action}/{name}",
+                defaults: new { controller = "Documents", action = "Details" },
+                constraints: new { name = "[A-Za-z0-9_]*" }
+                );
+
             routes.MapRoute(
                 name: "Rooms",
                 url: "Rooms/{action}/{name}",

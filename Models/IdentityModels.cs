@@ -61,5 +61,6 @@ namespace Server.Models
 
         public IDbSet<UserAccessToken> AccessTokens { get; set; }
 
+        public System.Data.Entity.DbSet<Server.Models.Document> Documents { get; set; }
     }
 }

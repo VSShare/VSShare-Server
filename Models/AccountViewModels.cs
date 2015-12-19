@@ -54,7 +54,6 @@ namespace Server.Models
     {
         [Required]
         [Display(Name = "ユーザー名もしくは電子メール")]
-        [EmailAddress]
         public string EmailOrUserName { get; set; }
 
         [Required]

@@ -1,4 +1,5 @@
-﻿@using Server.Models
+﻿@using Server.Extensions
+@using Server.Models
 @using Server.Models.Manager
 @model Server.Models.Room
 
@@ -31,7 +32,7 @@
     </h1>
     <ul class="list-inline list-inline-info">
         <li class="text-muted">前回までの総来場者数： @Model.TotalVisitor</li>
-        <li class="text-muted">最終配信日： @Model.LatestBroadcastDate.ToString("yyyy年MM月dd日 HH:mm:ss")</li>
+        <li class="text-muted">最終配信日： @Model.LatestBroadcastDate.ToString("yyyy年MM月dd日 HH時mm分")</li>
         <li class="text-muted">作成者： @Model.Owner.UserName さん</li>
     </ul>
 </div>
@@ -97,7 +98,7 @@
     <div class="col-sm-12">
         <div class="panel panel-default">
             <div class="panel-body">
-                @Model.Description
+                @Html.Markdown(Model.Description)
             </div>
         </div>
     </div>

@@ -1,0 +1,24 @@
+﻿@using Server.Extensions
+@model Server.Models.Document
+
+@{
+    ViewBag.Title = Model.Title;
+}
+
+
+<div class="page-header">
+    <p>@Html.ActionLink("« ドキュメント一覧", "Index")</p>
+
+    <h1>
+        @Model.Title
+    </h1>
+    <ul class="list-inline list-inline-info">
+        <li class="text-muted">最終配信日： @Model.ModifiedAt.ToString("yyyy年MM月dd日 HH時mm分")</li>
+        <li class="text-muted">作成日： @Model.CreatedAt.ToString("yyyy年MM月dd日 HH時mm分")</li>
+    </ul>
+</div>
+<div class="row">
+    <div class="col-sm-12">
+        @Html.Markdown(Model.Body)
+    </div>
+</div>
