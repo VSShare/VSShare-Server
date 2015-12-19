@@ -34,6 +34,12 @@ namespace Server.Models
 
         private readonly Dictionary<string, Tuple<string, DateTime>> _tokens = new Dictionary<string, Tuple<string, DateTime>>();
 
+        private bool IsExpired(DateTime now, DateTime registeredTime)
+        {
+            var diff = registeredTime - now;
+            return (diff.TotalSeconds < _expiredDuration);
+        }
+
         public string GetTokenInfo(string token)
         {
             lock (_tokens)
@@ -44,8 +50,7 @@ namespace Server.Models
                 var now = DateTime.Now;
                 var item = _tokens[token];
 
-                var diff = item.Item2 - now;
-                if (diff.TotalSeconds < _expiredDuration)
+                if (IsExpired(now, item.Item2))
                 {
                     // OK
                     return item.Item1;
@@ -78,5 +83,20 @@ namespace Server.Models
             }
             return id;
         }
+
+        public void CleanExpiredToken()
+        {
+
+            lock (_tokens)
+            {
+                var now = DateTime.Now;
+                var expired = _tokens.Where(c => IsExpired(now, c.Value.Item2)).Select(c => c.Key).ToList();
+                foreach (var token in expired)
+                {
+                    _tokens.Remove(token);
+                }
+            }
+        }
+
     }
 }

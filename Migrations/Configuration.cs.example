@@ -29,19 +29,19 @@ namespace Server.Migrations
 
             var userManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(context));
 
-            ApplicationUser user = userManager.FindByName("admin");
-            if (user == null)
+            ApplicationUser adminUser = userManager.FindByName("admin");
+            if (adminUser == null)
             {
-                user = new ApplicationUser()
+                adminUser = new ApplicationUser()
                 {
                     UserName = "admin",
                 };
-                var result = userManager.Create(user, "adminPassword@12345");
+                var result = userManager.Create(adminUser, "adminPassword@12345");
             }
 
-            if (user.Roles.All(c => c.RoleId != adminRole.Id))
+            if (adminUser.Roles.All(c => c.RoleId != adminRole.Id))
             {
-                userManager.AddToRole(user.Id, "admin");
+                userManager.AddToRole(adminUser.Id, "admin");
             }
 
             context.SaveChanges();

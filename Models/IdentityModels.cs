@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data.Entity;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -21,6 +22,8 @@ namespace Server.Models
         public virtual ICollection<Room> OwnerRooms { get; set; }
 
         public virtual ICollection<UserAccessToken> AccessTokens { get; set; }
+
+        public DateTime CreatedAt { get; set; }
 
 
     }

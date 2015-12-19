@@ -12,7 +12,6 @@ using System.Net;
 
 namespace Server.Controllers
 {
-    [Authorize]
     public class ManageController : Controller
     {
         private ApplicationSignInManager _signInManager;
