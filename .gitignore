@@ -4,6 +4,7 @@
 Settings.config
 Migrations/Configuration.cs
 ApplicationInsights.config
+Scripts/analytics.js
 
 # User-specific files
 *.suo

@@ -592,6 +592,7 @@
     <Content Include="Scripts\ace\worker-php.js" />
     <Content Include="Scripts\ace\worker-xml.js" />
     <Content Include="Scripts\ace\worker-xquery.js" />
+    <Content Include="Scripts\analytics.js" />
     <Content Include="Scripts\bootstrap-growl.min.js" />
     <Content Include="Scripts\goldenlayout.js" />
     <Content Include="Scripts\goldenlayout.min.js" />
