@@ -15,6 +15,7 @@ namespace Server.Controllers
 {
     [Authorize]
     [AiHandleError()]
+    [RequireHttps()]
     public class AccountController : Controller
     {
         private ApplicationSignInManager _signInManager;

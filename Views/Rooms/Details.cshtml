@@ -94,10 +94,12 @@
     </div>
 }
 
+@Html.Partial("_SocialButtons")
+
 <div class="row">
     <div class="col-sm-12">
         <div class="panel panel-default">
-            <div class="panel-body">
+            <div class="panel-body markdown-container">
                 @Html.Markdown(Model.Description)
             </div>
         </div>

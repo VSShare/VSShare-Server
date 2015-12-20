@@ -16,6 +16,7 @@ namespace Server.Controllers
 {
     [Authorize()]
     [AiHandleError()]
+    [RequireHttps()]
     public class RoomsController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
@@ -440,7 +441,7 @@ namespace Server.Controllers
             {
                 CreatedAt = DateTime.Now,
                 LatestBroadcastDate = DateTime.Now,
-                AccessCode = Guid.NewGuid().ToString(),
+                AccessCode = viewModel.AccessCode,
                 Description = viewModel.Description,
                 DisplayName = viewModel.DisplayName,
                 IsHidden = viewModel.IsHidden,

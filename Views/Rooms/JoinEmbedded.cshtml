@@ -6,7 +6,7 @@
     Layout = "~/Views/Shared/_EmbeddedLayout.cshtml";
 }
 
-<div>
+<div class="container body-content">
     @if (Model.Type != MessageType.None)
     {
         <div class="@Model.GetAlertClass()" role="alert">

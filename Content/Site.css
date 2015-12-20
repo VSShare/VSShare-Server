@@ -1,7 +1,12 @@
 ﻿body {
     padding-top: 50px;
-    padding-bottom: 20px;
 }
+
+html {
+    height: 100%;
+    background: #e6e9ed;
+}
+
 
 /* Set padding to keep content from hitting the edges */
 .body-content {
@@ -15,6 +20,19 @@
 .dl-horizontal dt {
     white-space: normal;
 }
+
+footer {
+    position: relative;
+    width: 100%;
+    padding: 0 0 20px;
+    margin-top: 40px;
+    background: #e6e9ed;
+}
+
+.markdown-container img {
+    max-width: 100%;
+}
+
 
 /* Set width on the form input elements since they're 100% wide by default */
 input,

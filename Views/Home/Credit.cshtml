@@ -1,17 +1,23 @@
 ﻿@{
-    ViewBag.Title = "Contact";
+    ViewBag.Title = "クレジット";
 }
-<h2>@ViewBag.Title.</h2>
-<h3>@ViewBag.Message</h3>
 
-<address>
-    One Microsoft Way<br />
-    Redmond, WA 98052-6399<br />
-    <abbr title="Phone">P:</abbr>
-    425.555.0100
-</address>
+<div class="row">
+    <div class="col-sm-12">
+        <h1>クレジット</h1>
+        <p>VSShareはオープンソースになりました。すべてのソースコードは<a href="https://github.com/VSShare/" target="_blank">GitHub</a>上で管理されています。</p>
+        <p>プロジェクトの開発・発展に貢献してくださった方々、プロジェクトを愛用してくださる皆様に深く感謝申し上げます。<br />
+        プロジェクトへ貢献してくださった方々のお名前を、以下のページで掲載させていただいております。</p>
+        <ul>
+            <li>@Html.ActionLink("プロジェクトのクレジット", "Details", "Documents", new { name = "ProjectCredit" }, null)</li>
+        </ul>
 
-<address>
-    <strong>Support:</strong>   <a href="mailto:Support@example.com">Support@example.com</a><br />
-    <strong>Marketing:</strong> <a href="mailto:Marketing@example.com">Marketing@example.com</a>
-</address>
+        <h1>連絡先</h1>
+        <p>このサイトでホストされているサービスに関する、ご意見・ご要望、その他ご意見は以下のメールアドレスまたはTwitterアカウントまでご連絡ください。</p>
+
+        <h2>メール</h2>
+        <p><mark>info@bonprosoft.com</mark> までお問い合わせください。</p>
+        <h2>Twitter</h2>
+        <p><a href="https://twitter.com/bonprosoft">[at]bonprosoft</a> へお気軽にご連絡ください。</p>
+    </div>
+</div>

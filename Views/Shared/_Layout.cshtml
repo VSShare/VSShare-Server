@@ -39,8 +39,35 @@
         <hr />
     </div>
     @RenderSection("outcontainer", required: false)
-    <footer>
-        <p>&copy; @DateTime.Now.Year - VSShare</p>
+    <footer class="bs-docs-footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-12">
+                    <h3>VSShare</h3>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <p>VSShareはリアルタイムにエディタのコードを共有できるWebサービスです。</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <ul class="list-inline">
+                        <li><a href="@Url.Action("Details","Documents", new { name = "About" })">About</a></li>
+                        <li><a href="@Url.Action("Index", "Rooms")">ルーム一覧</a></li>
+                        <li><a href="@Url.Action("Index", "Documents")">ドキュメント</a></li>
+                        <li><a href="@Url.Action("Credit","Home")">お問い合わせ</a></li>
+                        <li><a href="@Url.Action("ServiceAgreement", "Home")">利用規約・プライバシーポリシー</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 small" style="margin: 10px 0 10px;">
+                    &copy; 2015 VSShare Project. @Html.ActionLink("Credit", "Credit", "Home",null,null)
+                </div>
+            </div>
+        </div>
     </footer>
 
     @Scripts.Render("~/bundles/jquery")

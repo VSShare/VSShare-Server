@@ -10,6 +10,7 @@ using Server.Models;
 namespace Server.Controllers
 {
     [AiHandleError()]
+    [RequireHttps()]
     public class HomeController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
@@ -25,5 +26,11 @@ namespace Server.Controllers
         {
             return View();
         }
+
+        public ActionResult ServiceAgreement()
+        {
+            return View();
+        }
+
     }
 }

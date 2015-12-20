@@ -5,11 +5,54 @@
     Layout = "~/Views/Shared/_EmbeddedLayout.cshtml";
 }
 
-<div class="live-view">
-    <p>
-        AuthCode
-    </p>
-    <p>
-        @Html.DisplayFor(model => model.Item1)
-    </p>
+<div class="row">
+    <div class="col-xs-5 col-sm-4 col-md-2">
+        <h2>
+            【<span id="broadcast-status">OFFLINE</span>】
+            @Model.Item2.DisplayName<small>(@Model.Item2.Name)</small>
+        </h2>
+        <p class="text-muted">
+            Active View: <span id="viewer-count">0</span>
+            <br /> Total View: <span id="totalview-count">0</span>
+        </p>
+    </div>
 </div>
+
+<div class="container golden-layout-container">
+    <div id="golden-layout"></div>
+</div>
+
+
+@section styles {
+    <link href="~/Content/LiveView.css" rel="stylesheet" />
+    <link href="~/Content/goldenlayout-base.css" rel="stylesheet" />
+    <link href="~/Content/goldenlayout-light-theme.css" rel="stylesheet" />
+}
+
+@section Scripts {
+    <script src="~/Scripts/bootstrap-growl.min.js"></script>
+    <script src="~/Scripts/jquery.signalR-2.2.0.min.js" type="text/javascript"></script>
+    <script src="~/Scripts/goldenlayout.js"></script>
+    <script src="~/Scripts/ace/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script src="~/Scripts/vsshare-client.js" type="text/javascript"></script>
+
+    <script>
+        $(function () {
+            var Url =  "@(String.Format("//{0}:{1}/signalr", Request.Url.Host, Request.Url.Port))";
+            var HubName = "listen";
+            var Token = "@(Model.Item1)";
+            var client = new VSShareClient(Url, HubName);
+            client.startConnection(Token);
+            // for debug
+            window["_client"] = client;
+        });
+    </script>
+    <script>
+        $(function () {
+            $("#open-child").on("click", function() {
+                window.open("@(Url.Action("JoinEmbedded", new { name = Model.Item2.Name}))", "@(ViewBag.Title)", "width=500,height=500,resizable=yes");
+            });
+        })
+    </script>
+}
+

@@ -16,9 +16,12 @@
         <li class="text-muted">最終配信日： @Model.ModifiedAt.ToString("yyyy年MM月dd日 HH時mm分")</li>
         <li class="text-muted">作成日： @Model.CreatedAt.ToString("yyyy年MM月dd日 HH時mm分")</li>
     </ul>
+
+    @Html.Partial("_SocialButtons")
+
 </div>
 <div class="row">
-    <div class="col-sm-12">
+    <div class="col-sm-12 markdown-container">
         @Html.Markdown(Model.Body)
     </div>
 </div>

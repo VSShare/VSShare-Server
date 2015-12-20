@@ -14,6 +14,7 @@ using Server.Models;
 namespace Server.Controllers
 {
     [AiHandleError()]
+    [RequireHttps()]
     public class DocumentsController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();

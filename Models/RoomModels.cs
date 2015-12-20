@@ -44,7 +44,7 @@ namespace Server.Models
 
         [Required()]
         [StringLength(50)]
-        [Display(Name = "ルームキー")]
+        [Display(Name = "ルームトークン")]
         public string BroadcastToken { get; set; }
 
         [Required]
