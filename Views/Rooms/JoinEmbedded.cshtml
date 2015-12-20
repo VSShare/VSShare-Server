@@ -40,7 +40,7 @@
     {
         <div class="row">
             @using (Html.BeginForm())
-            {
+                {
                 @Html.AntiForgeryToken()
                 @Html.Hidden("name", Model.Item.Room.Name)
 
@@ -48,7 +48,7 @@
                 {
                     <div class="form-group">
                         <p class="control-label col-md-2">閲覧パスワード</p>
-                        <div class="col-md-10">
+                        <div class="col-sm-10">
                             <input type="password" class="form-control" name="auth" placeholder="閲覧コードを入力" />
                         </div>
                     </div>

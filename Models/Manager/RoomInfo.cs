@@ -21,8 +21,6 @@ namespace Server.Models.Manager
 
         public HashSet<string> Broadcasters { get; set; } = new HashSet<string>();
 
-        public long ViewCount { get; set; } = 0;
-
         public long VisitorCount { get; set; } = 0;
 
         public bool IsBroadcasting { get; set; } = false;
@@ -86,7 +84,7 @@ namespace Server.Models.Manager
             var item = new UpdateBroadcastStatusNotification()
             {
                 VisitorCount = this.VisitorCount,
-                ViewCount = this.ViewCount
+                ViewCount = this.Listeners.Count
             };
             var manager = ListenerManager.GetInstance();
 
@@ -249,6 +247,16 @@ namespace Server.Models.Manager
                         FileName = item.FileName,
                         Id = item.Id
                     }).ToList();
+        }
+
+        public UpdateBroadcastStatusNotification GetRoomStatus()
+        {
+            var item = new UpdateBroadcastStatusNotification()
+            {
+                VisitorCount = this.VisitorCount,
+                ViewCount = this.Listeners.Count
+            };
+            return item;
         }
 
         #endregion

@@ -5,23 +5,18 @@
     Layout = "~/Views/Shared/_EmbeddedLayout.cshtml";
 }
 
-<div class="row">
-    <div class="col-xs-5 col-sm-4 col-md-2">
-        <h2>
-            【<span id="broadcast-status">OFFLINE</span>】
-            @Model.Item2.DisplayName<small>(@Model.Item2.Name)</small>
-        </h2>
-        <p class="text-muted">
-            Active View: <span id="viewer-count">0</span>
-            <br /> Total View: <span id="totalview-count">0</span>
-        </p>
-    </div>
+<div class="embedded-info">
+    <p class="text-muted">
+        【<span id="broadcast-status">OFFLINE</span>】
+        @Model.Item2.DisplayName<small>(@Model.Item2.Name)</small> |
+        Active View: <span id="viewer-count">0</span> |
+        Total View: <span id="totalview-count">0</span>
+    </p>
 </div>
 
-<div class="container golden-layout-container">
+<div class="golden-layout-container embedded-container">
     <div id="golden-layout"></div>
 </div>
-
 
 @section styles {
     <link href="~/Content/LiveView.css" rel="stylesheet" />

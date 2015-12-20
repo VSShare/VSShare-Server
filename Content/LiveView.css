@@ -42,6 +42,10 @@ body>.container {
     position:relative;
 }
 
+.embedded-info {
+    height: 30px;
+}
+
 #golden-layout{
     /* width: 100%; */
     left: 10px;

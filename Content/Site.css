@@ -53,6 +53,11 @@ textarea {
     max-width: none;
 }
 
+.embedded-textarea {
+    height: auto;
+    width: 100%;
+}
+
 
 #login-dp{
     min-width: 250px;
@@ -97,5 +102,11 @@ textarea {
     }
 }
 
+.embedded-container {
+    height: 90%;
+}
 
-
+.embedded-body {
+    padding-top: 0 !important;
+    height: 100%;
+}

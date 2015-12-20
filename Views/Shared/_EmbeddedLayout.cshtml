@@ -10,12 +10,12 @@
     <script src="~/Scripts/analytics.js"></script>
     @RenderSection("styles", required: false)
 </head>
-<body>
+<body class="embedded-body">
     @RenderBody()
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
-    <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.0/js/bootstrap-toggle.min.js"></script>
-    <script type="text/javascript" src="http://bowercdn.net/c/jquery-autosize-1.18.18/jquery.autosize.min.js"></script>
+    <script src="//gitcdn.github.io/bootstrap-toggle/2.2.0/js/bootstrap-toggle.min.js"></script>
+    <script type="text/javascript" src="//bowercdn.net/c/jquery-autosize-1.18.18/jquery.autosize.min.js"></script>
     @RenderSection("scripts", required: false)
 </body>
 </html>

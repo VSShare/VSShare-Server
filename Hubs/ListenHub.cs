@@ -12,6 +12,7 @@ using ProtocolModels.Broadcaster;
 using ProtocolModels.Listener;
 using ProtocolModels.Notification;
 using Server.Models;
+using ProtocolModels.Notifications;
 
 namespace Server.Hubs
 {
@@ -29,14 +30,19 @@ namespace Server.Hubs
             var instance = ListenerManager.GetInstance();
             if (instance.IsListener(connectionId))
             {
-                instance.RemoveListener(connectionId).ContinueWith(c =>
+                var result = instance.RemoveListener(connectionId);
+                result.Wait();
+                if (!result.IsCanceled && result.Result != null)
                 {
-                    c.Wait();
-                    if (c.Result != null)
+                    try
                     {
-                        this.Groups.Remove(connectionId, c.Result).Wait();
+                        this.Groups.Remove(connectionId, result.Result).Wait();
                     }
-                });
+                    catch (Exception ex)
+                    {
+                        // Task Cancel Exception
+                    }
+                }
             }
 
             return base.OnDisconnected(stopCalled);
@@ -90,6 +96,20 @@ namespace Server.Hubs
         }
 
         #region "Session Request系"
+
+        public UpdateBroadcastStatusNotification GetRoomStatus()
+        {
+            var connectionId = Context.ConnectionId;
+            var instance = ListenerManager.GetInstance();
+            if (instance.IsListener(connectionId))
+            {
+                var info = instance.GetConnectionInfo(connectionId);
+                var roomInstance = RoomManager.GetInstance();
+                var room = roomInstance.GetRoomInfo(info.RoomId);
+                return room?.GetRoomStatus() ?? null;
+            }
+            return null;
+        }
 
         public List<AppendSessionNotification> GetSessionList()
         {

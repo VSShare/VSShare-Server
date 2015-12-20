@@ -33,17 +33,15 @@
 @Html.Partial("_SocialButtons")
 
 
-<div class="row">
-    <div class="row">
-        <p><a id="open-child" class="btn btn-sm btn-default"><i class="glyphicon glyphicon-new-window"></i>子ウインドウ</a></p>
+<div class="row clearfix">
+    <div class="col-sm-9">
+        <p class="text-muted">
+            Active View: <span id="viewer-count">0</span> |
+            Total View: <span id="totalview-count">0</span>
+        </p>
     </div>
-    <div class="row">
-        <div class="col-xs-5 col-sm-4 col-md-2">
-            <p class="text-muted">
-                Active View: <span id="viewer-count">0</span>
-                <br /> Total View: <span id="totalview-count">0</span>
-            </p>
-        </div>
+    <div class="col-sm-3">
+        <p><a id="open-child" class="btn btn-sm btn-default"><i class="glyphicon glyphicon-new-window"></i>子ウインドウ</a></p>
     </div>
 </div>
 

@@ -94,36 +94,73 @@
     </div>
 }
 
-@Html.Partial("_SocialButtons")
 
-<div class="row">
-    <div class="col-sm-12">
-        <div class="panel panel-default">
-            <div class="panel-body markdown-container">
-                @Html.Markdown(Model.Description)
+    <div class="row">
+        <div class="col-sm-10">
+            @Html.Partial("_SocialButtons")
+        </div>
+        <div class="col-sm-2">
+            <a href="#embedded-modal" role="button" class="btn btn-success" data-toggle="modal"><i class="glyphicon glyphicon-share-alt"></i>埋め込み</a>
+            <div id="embedded-modal" class="modal fade">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                            <h4 class="modal-title">埋め込みスクリプトの取得</h4>
+                        </div>
+                        <div class="modal-body">
+                            <textarea id="embedded-code" class="full-length embedded-textarea" readonly>@String.Format(@"<iframe src=""{0}"" width=""600"" height=""500"" frameborder=""0"" marginwidth=""0"" marginheight=""0"" scrolling=""no"" style=""border: 1px solid #CCC; border-width:1px; margin-bottom:5px; max-width: 100%;"" allowfullscreen> </iframe>",
+                                    Url.Action("JoinEmbedded", "Rooms", new { name = Model.Name }, this.Request.Url.Scheme))</textarea>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">閉じる</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-body markdown-container">
+                    @Html.Markdown(Model.Description)
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<div class="panel panel-default">
-    <div class="panel-heading">配信画面</div>
-    <div class="panel-body">
-        @if (Model.IsLive)
-        {
-            <p>この部屋は現在配信中です。</p>
-            @Html.ActionLink("参加する", "Join", new { name = Model.Name }, new { @class = "btn btn-primary" })
-        }
-        else
-        {
-            <p>この部屋は現在配信していません。</p>
-            @Html.ActionLink("参加する", "Join", new { name = Model.Name }, new { @class = "btn btn-primary", disabled="disabled" })
-        }
+    <div class="panel panel-default">
+        <div class="panel-heading">配信画面</div>
+        <div class="panel-body">
+            @if (Model.IsLive)
+            {
+                <p>この部屋は現在配信中です。</p>
+                @Html.ActionLink("参加する", "Join", new { name = Model.Name }, new { @class = "btn btn-primary" })
+            }
+            else
+            {
+                <p>この部屋は現在配信していません。</p>
+                @Html.ActionLink("参加する", "Join", new { name = Model.Name }, new { @class = "btn btn-primary", disabled = "disabled" })
+            }
+        </div>
     </div>
-</div>
 
 
 
-<p>
-    @Html.ActionLink("一覧へ戻る", "Index")
-</p>
+    <p>
+        @Html.ActionLink("一覧へ戻る", "Index")
+    </p>
+
+@section Scripts {
+    <script>
+        $(function () {
+            $('#embedded-code').focus(function () {
+                $(this).select();
+            });
+        })
+    </script>
+
+}

@@ -27,10 +27,17 @@ namespace Server.Models.Manager
 
         public CursorType CursorType { get; private set; } = CursorType.Point;
 
-        public CursorPosition CursorActivePosition { get; private set; }
+        private CursorPosition _cursorActivePosition = new CursorPosition();
+        public CursorPosition CursorActivePosition
+        {
+            get
+            {
+                return this._cursorActivePosition == null ? new CursorPosition() : this._cursorActivePosition;
+            }
+            private set { this._cursorActivePosition = value; }
+        }
 
         private CursorPosition _cursorAnchorPosition = new CursorPosition();
-
         public CursorPosition CursorAnchorPosition
         {
             get {

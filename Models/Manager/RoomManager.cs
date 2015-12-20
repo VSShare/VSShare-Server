@@ -125,6 +125,7 @@ namespace Server.Models.Manager
             if (this._rooms.ContainsKey(roomId))
             {
                 this._rooms[roomId].Listeners.Add(connectionId);
+                this._rooms[roomId].VisitorCount++;
 
                 await this._rooms[roomId].UpdateRoomStatus();
                 return true;
