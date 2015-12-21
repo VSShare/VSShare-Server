@@ -83,7 +83,7 @@ namespace Server.Models.Manager
                     {
                         var room = await db.Rooms
                             .FirstOrDefaultAsync(c => c.Id == roomId);
-                        if (room != null && room.IsLive)
+                        if (room != null)
                         {
                             // EFのLazyLoadingのため...
                             var owner = room.Owner;
