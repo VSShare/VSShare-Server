@@ -126,12 +126,11 @@ namespace Server.Models.Manager
             }
         }
 
-        public async Task RemoveSession(RemoveSessionRequest item, bool isOnlyNotification = false)
+        public async Task RemoveSession(RemoveSessionRequest item)
         {
             if (this.Sessions.ContainsKey(item.SessionId))
             {
-                if (!isOnlyNotification)
-                    this.Sessions.Remove(item.SessionId);
+                this.Sessions.Remove(item.SessionId);
 
                 var manager = ListenerManager.GetInstance();
                 await Task.Run(() =>

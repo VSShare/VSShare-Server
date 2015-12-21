@@ -66,14 +66,14 @@ namespace Server.Models.Manager
             {
                 var roomInfo = this._rooms[roomId];
                 // Sessionが削除されたことを通知
-                var sessions = roomInfo.Sessions.Where(c => c.Value.BroadcasterId == connectionId);
+                var sessions = roomInfo.Sessions.Where(c => c.Value.BroadcasterId == connectionId).Select(c => c.Key).ToList();
 
                 foreach (var session in sessions)
                 {
                     await roomInfo.RemoveSession(new RemoveSessionRequest()
                     {
-                        SessionId = session.Key
-                    }, true);
+                        SessionId = session
+                    });
                 }
 
                 roomInfo.Broadcasters.Remove(connectionId);
