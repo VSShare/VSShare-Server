@@ -35,6 +35,7 @@ namespace Server.Migrations
                 adminUser = new ApplicationUser()
                 {
                     UserName = "admin",
+                    CreatedAt = DateTime.Now
                 };
                 var result = userManager.Create(adminUser, "adminPassword@12345");
             }

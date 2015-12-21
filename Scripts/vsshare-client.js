@@ -83,6 +83,11 @@ var VSShareClient = (function () {
             if (response && response.success) {
                 // 認証成功
                 self._status = VSShareStatus.Authorized;
+                _this._hub.invoke("GetRoomStatus").done(function (res) {
+                    if (res != null) {
+                        self._room.updateRoomStatus(res);
+                    }
+                });
                 _this._hub.invoke("GetSessionList").done(function (res) {
                     _this.switchOnline(res.length > 0);
                     res.forEach(function (value, index, array) {
@@ -126,6 +131,8 @@ var VSShareClient = (function () {
     };
     VSShareClient.prototype.switchOnline = function (isOnline) {
         var status = document.getElementById("broadcast-status");
+        if (status == null)
+            return;
         if (isOnline) {
             status.innerHTML = "ONLINE";
             status.style.color = "red";
@@ -148,7 +155,7 @@ var Room = (function () {
     function Room() {
         this._sessions = {};
         this._containers = {};
-        this._myLayout = new GoldenLayout({ content: [] }, $('#golden-layout'));
+        this._myLayout = new GoldenLayout({ content: [], settings: { showPopoutIcon: false } }, $('#golden-layout'));
         this._myLayout.registerComponent('file', function (container, state) {
             container.getElement().html("<pre class=\"code\" id=\"code-" + state.id + "\"></pre>");
             container.setTitle(state.self.getShortFileName(state.filename));
@@ -172,6 +179,7 @@ var Room = (function () {
             content: [{
                     type: 'component',
                     componentName: "file",
+                    isClosable: false,
                     componentState: { id: id, filename: filename, session: this._sessions[id], self: this }
                 }] };
         if (!this._myLayout.root.contentItems.length) {
@@ -250,9 +258,6 @@ var Session = (function () {
     }
     Session.prototype.setEditor = function (element) {
         this._editor = ace.edit(element.querySelector("#code-" + this._id));
-        // オンオフで切り替える
-        //this._editor["_emit"] = (name:string, e: MouseEvent) => {};
-        //this._editor["$callKeyboardHandlers"] = (hashId:number, keyString: string, keyCode: number, e: KeyboardEvent) => {};
         this.setEditorMode(this._type);
         this._editor.setReadOnly(true);
         this._editor.setOption("maxLines", (element.clientHeight) / this._editor.renderer.layerConfig.lineHeight);
@@ -377,6 +382,18 @@ var Session = (function () {
         }
         this._editor.renderer.updateFrontMarkers();
         this._editor.renderer.updateBackMarkers();
+    };
+    Session.prototype.scrollWithCursor = function (activeCursorPosition) {
+        var range = this._editor.getSelectionRange();
+        if (range.start.row != range.end.row && range.start.column != range.end.column) {
+            return;
+        }
+        var maxLines = this._editor.getOption("maxLines");
+        var currentRow = this._editor.getFirstVisibleRow();
+        if (activeCursorPosition.line < currentRow) {
+        }
+        else if (activeCursorPosition.line > currentRow + maxLines) {
+        }
     };
     Session.prototype.updateCursorMarker = function (html, marker, session, config, self) {
         if (!self._cursorPos) {

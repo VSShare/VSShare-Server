@@ -237,12 +237,10 @@
     </Compile>
     <Compile Include="Hubs\BroadcastHub.cs" />
     <Compile Include="Hubs\ListenHub.cs" />
-    <Content Include="ApplicationInsights-example.config">
+    <Content Include="ApplicationInsights.config" />
+    <None Include="ApplicationInsights.config.example">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="ApplicationInsights.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    </None>
     <None Include="Migrations\Configuration.cs.example" />
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\DocumentModels.cs" />
