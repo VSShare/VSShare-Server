@@ -21,6 +21,14 @@ body>.container {
     margin: 1em 0
 }
 
+.lm_header .lm_tab .lm_close_tab {
+    display: none !important;
+}
+
+.lm_controls .lm_close {
+    display: none !important;
+}
+
 .filename-container {
     font-size: 1em
 }

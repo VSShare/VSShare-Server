@@ -146,7 +146,59 @@ var VSShareClient = (function () {
 })();
 exports.VSShareClient = VSShareClient;
 
-},{"./room":2}],2:[function(require,module,exports){
+},{"./room":3}],2:[function(require,module,exports){
+var FileTyype = (function () {
+    function FileTyype() {
+    }
+    FileTyype.Types = {
+        'code:bat': 'ace/mode/batchfile',
+        'code:c': 'ace/mode/c_cpp',
+        'code:cpp': 'ace/mode/c_cpp',
+        'code:csharp': 'ace/mode/csharp',
+        'code:css': 'ace/mode/css',
+        'code:clojure': 'ace/mode/clojure',
+        'code:coffeescript': 'ace/mode/coffee',
+        'code:dockerfile': 'ace/mode/dockerfile',
+        'code:go': 'ace/mode/golang',
+        'code:groovy': 'ace/mode/groovy',
+        'code:html': 'ace/mode/html',
+        'code:handlebars': 'ace/mode/handlebars',
+        'code:ini': 'ace/mode/ini',
+        'code:java': 'ace/mode/java',
+        'code:javascript': 'ace/mode/javascript',
+        'code:javascriptreact': 'ace/mode/javascript',
+        'code:json': 'ace/mode/json',
+        'code:jade': 'ace/mode/jade',
+        'code:less': 'ace/mode/less',
+        'code:lua': 'ace/mode/lua',
+        'code:makefile': 'ace/mode/makefile',
+        'code:markdown': 'ace/mode/markdown',
+        'code:objective-c': 'ace/mode/objectivec',
+        'code:perl': 'ace/mode/perl',
+        'code:perl6': 'ace/mode/perl',
+        'code:php': 'ace/mode/php',
+        'code:plaintext': 'ace/mode/plain_text',
+        'code:python': 'ace/mode/python',
+        'code:powershell': 'ace/mode/powershell',
+        'code:r': 'ace/mode/r',
+        'code:ruby': 'ace/mode/ruby',
+        'code:rust': 'ace/mode/rust',
+        'code:sql': 'ace/mode/sql',
+        'code:sass': 'ace/mode/sass',
+        'code:shellscript': 'ace/mode/sh',
+        'code:swift': 'ace/mode/swift',
+        'code:typescript': 'ace/mode/typescript',
+        'code:typescriptreact': 'ace/mode/typescript',
+        'code:vb': 'ace/mode/vbscript',
+        'code:xml': 'ace/mode/xml',
+        'code:yaml': 'ace/mode/yaml'
+    };
+    return FileTyype;
+})();
+exports.__esModule = true;
+exports["default"] = FileTyype;
+
+},{}],3:[function(require,module,exports){
 /// <reference path="../../typings/vsshare/typings/vsshare/vsshare.d.ts" />
 /// <reference path="../../typings/goldenlayout/goldenlayout.d.ts" />
 'use strict';
@@ -155,10 +207,11 @@ var Room = (function () {
     function Room() {
         this._sessions = {};
         this._containers = {};
-        this._myLayout = new GoldenLayout({ content: [], settings: { showPopoutIcon: false } }, $('#golden-layout'));
+        this._myLayout = new GoldenLayout({ content: [{
+                    type: 'row',
+                    content: [] }], settings: { showPopoutIcon: false } }, $('#golden-layout'));
         this._myLayout.registerComponent('file', function (container, state) {
             container.getElement().html("<pre class=\"code\" id=\"code-" + state.id + "\"></pre>");
-            container.setTitle(state.self.getShortFileName(state.filename));
             state.self._containers[state.id] = container;
             //container.tab.elements[0].title = state.filename
             state.session.setEditor(container.getElement()[0]);
@@ -175,25 +228,19 @@ var Room = (function () {
         }
         this._sessions[id] = new session_1["default"](id, filename, type, owner);
         var component = {
-            type: 'row',
-            content: [{
-                    type: 'component',
-                    componentName: "file",
-                    isClosable: false,
-                    componentState: { id: id, filename: filename, session: this._sessions[id], self: this }
-                }] };
-        if (!this._myLayout.root.contentItems.length) {
-            this._myLayout.root.addChild(component);
-        }
-        else {
-            this._myLayout.root.contentItems[0].addChild(component);
-        }
+            type: 'component',
+            componentName: "file",
+            title: this.getShortFileName(filename),
+            componentState: { id: id, filename: filename, session: this._sessions[id], self: this }
+        };
+        this._myLayout.root.contentItems[0].addChild(component);
     };
     Room.prototype.removeSession = function (item) {
         var id = item.id;
         this._sessions[id].close();
         delete this._sessions[id];
         this._containers[id].close();
+        delete this._containers[id];
     };
     Room.prototype.updateRoomStatus = function (item) {
         this._viewCount = item.view;
@@ -234,10 +281,11 @@ var Room = (function () {
 exports.__esModule = true;
 exports["default"] = Room;
 
-},{"./session":3}],3:[function(require,module,exports){
+},{"./session":4}],4:[function(require,module,exports){
 /// <reference path="../../typings/vsshare/typings/vsshare/vsshare.d.ts" />
 /// <reference path="../../typings/ace/ace.d.ts" />
 'use strict';
+var filetype_1 = require('./filetype');
 var StyleClass;
 (function (StyleClass) {
     StyleClass.Modified = "modified";
@@ -396,7 +444,8 @@ var Session = (function () {
         }
     };
     Session.prototype.updateCursorMarker = function (html, marker, session, config, self) {
-        if (!self._cursorPos) {
+        console.log("updating");
+        if (!self._cursorPos || (self._editor.getFirstVisibleRow() > self._cursorPos.line || self._editor.getLastVisibleRow() < self._cursorPos.line)) {
             return;
         }
         var span = document.createElement("span");
@@ -410,7 +459,7 @@ var Session = (function () {
         }
         var left = config.padding + leftCount * config.characterWidth;
         document.body.removeChild(span);
-        var top = config.lineHeight * self._cursorPos.line;
+        var top = config.lineHeight * (self._cursorPos.line - self._editor.getFirstVisibleRow());
         var width = config.characterWidth;
         var height = config.lineHeight;
         html.push("<div class=\"" + StyleClass.Cursor + "\" style=\"left: " + left + "px; top: " + top + "px; widht: " + width + "px; height: " + height + "px\"></div>");
@@ -439,6 +488,9 @@ var Session = (function () {
                 pos1 = self._selectionStartPos;
                 pos2 = self._cursorPos;
             }
+            if (self._editor.getLastVisibleRow() < pos1.line || self._editor.getFirstVisibleRow() > pos2.line) {
+                return;
+            }
             var span = document.createElement("span");
             span.style.visibility = "hidden";
             document.body.appendChild(span);
@@ -456,8 +508,8 @@ var Session = (function () {
             }
             var right = rightCount * config.characterWidth;
             document.body.removeChild(span);
-            var top1 = config.lineHeight * pos1.line;
-            var top2 = config.lineHeight * pos2.line;
+            var top1 = config.lineHeight * (pos1.line - self._editor.getFirstVisibleRow());
+            var top2 = config.lineHeight * (pos2.line - self._editor.getFirstVisibleRow());
             if (pos1.line == pos2.line) {
                 html.push("<div class=\"" + StyleClass.Selection + "\" style=\"left: " + (config.padding + left) + "px; width: " + (right - left) + "px; top: " + top1 + "px; height: " + config.lineHeight + "px\"></div>");
             }
@@ -466,7 +518,7 @@ var Session = (function () {
             }
         }
         else {
-            var top = config.lineHeight * self._cursorPos.line;
+            var top = config.lineHeight * (self._cursorPos.line - self._editor.getFirstVisibleRow());
             var height = config.lineHeight;
             html.push("<div class=\"" + StyleClass.ActiveLine + "\" style=\"left: 0; right: 0; top: " + top + "px; height: " + height + "px\"></div>");
         }
@@ -477,19 +529,7 @@ var Session = (function () {
         this.setEditorMode(item.type);
     };
     Session.prototype.setEditorMode = function (type) {
-        var mode;
-        switch (type) {
-            case "code:csharp":
-                mode = "ace/mode/csharp";
-                break;
-            case "code:json":
-                mode = "ace/mode/json";
-                break;
-            default:
-                mode = "ace/mode/plain_text";
-                break;
-        }
-        console.log(type);
+        var mode = filetype_1["default"].Types[type] || "ace/mode/plain_text";
         this._editor.session.setMode(mode);
     };
     Session.prototype.close = function () {
@@ -502,4 +542,4 @@ var Session = (function () {
 exports.__esModule = true;
 exports["default"] = Session;
 
-},{}]},{},[1])
+},{"./filetype":2}]},{},[1])
